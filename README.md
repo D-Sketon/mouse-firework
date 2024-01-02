@@ -1,5 +1,7 @@
 # mouse-firework
 
+![NPM](https://img.shields.io/npm/l/mouse-firework) ![npm](https://img.shields.io/npm/v/mouse-firework) ![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/mouse-firework)
+
 Fireworks effects appear when you click the mouse. Ideal for insertion in blogs and other such sites
 
 [Demo](https://d-sketon.github.io/mouse-firework)
@@ -62,14 +64,14 @@ e.g.
 interface FireworkOptions {
   excludeElements: string[];
   particles: {
-    shape: "circle" | "ring",
-    move: "emit" | "diffuse",
-    easing?: EasingTypes,
-    colors: string[],
-    number: number | [number, number],
-    duration: number | [number, number],
-    shapeOptions: CircleOptions | RingOptions,
-    moveOptions?: EmitOptions | DiffuseOptions,
+    shape: "circle" | "ring";
+    move: "emit" | "diffuse";
+    easing?: EasingTypes;
+    colors: string[];
+    number: number | [number, number];
+    duration: number | [number, number];
+    shapeOptions: CircleOptions | RingOptions;
+    moveOptions?: EmitOptions | DiffuseOptions;
   }[];
 }
 
@@ -85,7 +87,7 @@ type RingOptions = {
 type EmitOptions = {
   emitRadius?: number | [number, number]; // default [50, 180]
   radius?: number | [number, number]; // default 0.1
-  alphaChange?: boolean // default false
+  alphaChange?: boolean; // default false
   alpha?: number | [number, number]; // default 0
   alphaEasing?: EasingTypes; // default linear
   alphaDuration?: number | [number, number]; // default [600, 800]
