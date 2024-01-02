@@ -192,15 +192,15 @@ The final radius of the particle, default 0.1px
 
 If or not the alpha is changed when emitting, default false.
 
-##### alpha(`number | [number, number]`, default = `0`)
+###### alpha(`number | [number, number]`, default = `0`)
 
 The final alpha at the end of the emission, default 0
 
-##### alphaEasing(`EasingTypes`, default = `"linear"`)
+###### alphaEasing(`EasingTypes`, default = `"linear"`)
 
 Easing function of the alpha, default linear, see [types](https://github.com/theme-shoka-x/theme-shokax-anime/blob/main/src/types.ts) for more information.
 
-##### alphaDuration(`number | [number, number]`, default = `[600, 800]`)
+###### alphaDuration(`number | [number, number]`, default = `[600, 800]`)
 
 Duration of alpha changes during emission, default 600-800ms
 
@@ -214,14 +214,14 @@ Diffusion radius, default 80-160px
 
 The final lineWidth of the ring, default 0px
 
-##### alpha(`number | [number, number]`, default = `0`)
+###### alpha(`number | [number, number]`, default = `0`)
 
 The final alpha at the end of the diffusion, default 0
 
-##### alphaEasing(`EasingTypes`, default = `"linear"`)
+###### alphaEasing(`EasingTypes`, default = `"linear"`)
 
 Easing function of the alpha, default linear, see [types](https://github.com/theme-shoka-x/theme-shokax-anime/blob/main/src/types.ts) for more information.
 
-##### alphaDuration(`number | [number, number]`, default = `[600, 800]`)
+###### alphaDuration(`number | [number, number]`, default = `[600, 800]`)
 
 Duration of alpha changes during diffusion, default 600-800ms
