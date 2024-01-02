@@ -58,7 +58,7 @@ e.g.
 
 ## Options
 
-```js
+```ts
 interface FireworkOptions {
   excludeElements: string[];
   particles: {
