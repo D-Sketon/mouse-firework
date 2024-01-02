@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>mouse-firework</title>
+  <link rel="stylesheet" href="./lib/codemirror.css">
+  <link rel="stylesheet" href="./lib/idea.css">
+  <link rel="stylesheet" href="./lib/addon/fold/foldgutter.css">
+  <link rel="stylesheet" href="./lib/addon/hint/show-hint.css">
+  <style>
+    body {
+      background-color: grey;
+      margin: 0;
+      padding: 0;
+    }
+
+    .CodeMirror {
+      width: 50vw;
+      height: calc(100vh - 40px);
+    }
+
+    button {
+      width: 50vw;
+      height: 40px;
+      border: none;
+      outline: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: #ffffff;
+      font-size: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button:active {
+      background-color: #1f5092;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <script src="./lib/codemirror.js"></script>
+  <script src="./lib/javascript/javascript.js"></script>
+  <script src="./lib/addon/fold/foldcode.js"></script>
+  <script src="./lib/addon/fold/foldgutter.js"></script>
+  <script src="./lib/addon/fold/brace-fold.js"></script>
+  <script src="./lib/addon/fold/comment-fold.js"></script>
+
+  <script src="./lib/addon/edit/matchbrackets.js"></script>
+  <script src="./lib/addon/edit/closebrackets.js"></script>
+
+  <script src="./lib/addon/hint/show-hint.js"></script>
+  <script src="./lib/addon/hint/anyword-hint.js"></script>
+
+  <script src="./lib/addon/comment/comment.js"></script>
+
+  <script src="./lib/index.umd.js"></script>
+  <script>
+    const editor = CodeMirror(document.body, {
+      mode: "application/json",
+      value: `
+{
+  "excludeElements": ["a"],
+  "particles": [
+    {
+      "shape": "circle",
+      "move": "emit",
+      "easing": "easeOutExpo",
+      "colors": [
+        "rgba(255,182,185,.9)",
+        "rgba(250,227,217,.9)",
+        "rgba(187,222,214,.9)",
+        "rgba(138,198,209,.9)"
+      ],
+      "number": 30,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": [16, 32]
+      }
+    },
+    {
+      "shape": "ring",
+      "move": "diffuse",
+      "easing": "easeOutExpo",
+      "colors": ["#FFF"],
+      "number": 1,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": 20,
+        "alpha": 0.5,
+        "lineWidth": 6
+      }
+    }
+  ]
+}`.trim(),
+      smartIndent: true,
+      styleActiveLine: true,
+      lineNumbers: true,
+      indentUnit: 2,
+      gutters: [
+        "CodeMirror-linenumbers",
+        "CodeMirror-foldgutter",
+        "CodeMirror-lint-markers",
+      ],
+      lint: true,
+      matchBrackets: true,
+      autoCloseBrackets: true,
+      foldGutter: true,
+      autoRefresh: true,
+      theme: 'idea'
+    });
+    let value = `{
+  "excludeElements": ["a"],
+  "particles": [
+    {
+      "shape": "circle",
+      "move": "emit",
+      "easing": "easeOutExpo",
+      "colors": [
+        "rgba(255,182,185,.9)",
+        "rgba(250,227,217,.9)",
+        "rgba(187,222,214,.9)",
+        "rgba(138,198,209,.9)"
+      ],
+      "number": 30,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": [16, 32]
+      }
+    },
+    {
+      "shape": "ring",
+      "move": "diffuse",
+      "easing": "easeOutExpo",
+      "colors": ["#FFF"],
+      "number": 1,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": 20,
+        "alpha": 0.5,
+        "lineWidth": 6
+      }
+    }
+  ]
+}`;
+    editor.on('change', cm => {
+      value = cm.getValue()
+    })
+    const button = document.createElement('button')
+    button.innerHTML = "application options"
+    button.onclick = () => {
+      try {
+        const options = JSON.parse(value)
+        firework(options)
+      } catch (e) {
+        console.error(e)
+        alert("invalid options!")
+      }
+    }
+    document.querySelector('.CodeMirror').parentNode.appendChild(button)
+
+  </script>
+</body>
+
+</html>
