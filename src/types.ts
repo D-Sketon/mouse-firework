@@ -6,18 +6,12 @@ export type CircleOptions = {
   lineWidth?: number | [number, number];
 };
 
-export type StarOptions = {
-  radius: number | [number, number];
+export type StarOptions = CircleOptions & {
   spikes: number | [number, number];
-  alpha?: number | [number, number];
-  lineWidth?: number | [number, number];
 };
 
-export type PolygonOptions = {
-  radius: number | [number, number];
+export type PolygonOptions = CircleOptions & {
   sides: number | [number, number];
-  alpha?: number | [number, number];
-  lineWidth?: number | [number, number];
 };
 
 export type EmitOptions = {

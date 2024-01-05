@@ -64,13 +64,13 @@ e.g.
 interface FireworkOptions {
   excludeElements: string[];
   particles: {
-    shape: "circle" | "star";
+    shape: "circle" | "star" | "polygon";
     move: Array<"emit" | "diffuse" | "rotate">;
     easing?: EasingTypes;
     colors: string[];
     number: number | [number, number];
     duration: number | [number, number];
-    shapeOptions: CircleOptions | RingOptions;
+    shapeOptions: CircleOptions | StarOptions | PolygonOptions;
     moveOptions?: EmitOptions | DiffuseOptions | RotateOptions;
   }[];
 }
@@ -81,11 +81,12 @@ type CircleOptions = {
   lineWidth: number | [number, number];
 };
 
-type StarOptions = {
-  radius: number | [number, number];
+type StarOptions = CircleOptions & {
   spikes: number | [number, number];
-  alpha?: number | [number, number];
-  lineWidth?: number | [number, number];
+};
+
+type PolygonOptions = CircleOptions & {
+  sides: number | [number, number];
 };
 
 type EmitOptions = {
@@ -120,7 +121,7 @@ It is recommended to exclude animations on elements like `a` and `buttons` tags
 
 Specific options of firework particles
 
-#### shape(`"circle" | "star"`)
+#### shape(`"circle" | "star" | "polygon"`)
 
 Shape of the particles
 
@@ -178,21 +179,15 @@ Initial lineWidth of the circle, support interval
 
 ##### StarOptions
 
-###### radius(`number | [number, number]`)
-
-Same
-
-###### alpha(`number | [number, number]`, default = `1`)
-
-Same
-
-###### lineWidth(`number | [number, number]`)
-
-Same
-
 ###### spikes(`number | [number, number]`)
 
 Number of star spikes, support interval
+
+##### PolygonOptions
+
+###### sides(`number | [number, number]`)
+
+Number of polygon sides, support interval
 
 #### moveOptions(optional)
 
