@@ -1,4 +1,5 @@
 import anime from "theme-shokax-anime";
+// import anime from './anime/index'
 import type {
   CircleOptions,
   DiffuseOptions,

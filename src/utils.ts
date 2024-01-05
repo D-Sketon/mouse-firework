@@ -1,4 +1,5 @@
 import anime from "theme-shokax-anime";
+// import anime from './anime/index'
 
 export const sample = (raw: number | [number, number]): number => {
   return Array.isArray(raw) ? anime.random(raw[0], raw[1]) : raw;
