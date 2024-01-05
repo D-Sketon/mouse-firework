@@ -35,7 +35,7 @@ export default (anime: Anime) => {
 
   // 改变target单个key的属性
   const change = (
-    target: object | HTMLElement,
+    target: object,
     origin: number,
     elapsed: number,
     value: number,
@@ -47,8 +47,8 @@ export default (anime: Anime) => {
 
   // 改变target所有的属性
   const changeAll = (elapsed: number, current: number, final = false) => {
-    (anime.targets as HTMLElement[] | object[]).forEach(
-      (target: HTMLElement | object, index: string | number) => {
+    (anime.targets as object[]).forEach(
+      (target: object, index: string | number) => {
         Object.keys(anime.dest).forEach((key) => {
           const origin = parseFloat(cloneTargets[index][key]);
           let dest = anime.dest[key];
@@ -102,7 +102,7 @@ export default (anime: Anime) => {
     isValid && changeAll(elapsed, current);
     // 调用更新回调
     typeof anime.update == "function" &&
-      anime.update(anime.targets as HTMLElement[] | object[]);
+      anime.update(anime.targets as object[]);
     requestAnimationFrame(step);
   };
 

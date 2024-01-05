@@ -14,7 +14,7 @@ export default class Anime {
   targets: object | object[];
   duration: number;
   easing: EasingTypes;
-  update?: (targets: HTMLElement[] | object[]) => void;
+  update?: (targets: object[]) => void;
   dest: Record<
     string,
     | ((...args: any[]) => string | number)

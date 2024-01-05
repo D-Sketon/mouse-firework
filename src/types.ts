@@ -61,16 +61,3 @@ export interface PointType {
   x: number;
   y: number;
 }
-
-export interface FireworkType {
-  x: number;
-  y: number;
-  rotation: number;
-  color: string;
-  radius: number;
-  endPos: PointType;
-  endRotation: number;
-  alpha?: number;
-  lineWidth?: number;
-  draw: () => void;
-}
