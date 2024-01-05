@@ -1,5 +1,5 @@
-// import anime from "theme-shokax-anime";
-import anime from "./anime";
+import anime from "theme-shokax-anime";
+// import anime from "./anime";
 
 import Circle from "./entity/Circle";
 import Polygon from "./entity/Polygon";

@@ -1,5 +1,5 @@
-// import anime from "theme-shokax-anime";
-import anime from "./anime";
+import anime from "theme-shokax-anime";
+// import anime from "./anime";
 import type {
   DiffuseOptions,
   EmitOptions,
@@ -23,11 +23,12 @@ let pointerX = 0;
 let pointerY = 0;
 
 const setCanvasSize = (): void => {
-  canvasEl.width = window.innerWidth * 2;
-  canvasEl.height = window.innerHeight * 2;
+  const scale = window.devicePixelRatio || 1;
+  canvasEl.width = window.innerWidth * scale;
+  canvasEl.height = window.innerHeight * scale;
   canvasEl.style.width = window.innerWidth + "px";
   canvasEl.style.height = window.innerHeight + "px";
-  canvasEl.getContext("2d").scale(2, 2);
+  canvasEl.getContext("2d").scale(scale, scale);
 };
 
 const updateCoords = (e: MouseEvent | TouchEvent): void => {
