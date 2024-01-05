@@ -8,11 +8,9 @@ export interface AnimeOptions {
     | BasicProp
     | FromToProp
     | NestProp
-    | KeyFrameProp
     | any;
 }
 
-export type KeyFrameProp = NestProp[];
 export type NestProp = {
   value: number;
   duration: number;

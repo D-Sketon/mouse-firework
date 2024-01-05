@@ -1,5 +1,4 @@
 import type Anime from "../Anime";
-import type { KeyFrameProp } from "../types";
 import penner from "./penner";
 
 export default (anime: Anime) => {
@@ -21,13 +20,9 @@ export default (anime: Anime) => {
     for (const target of anime.targets as object[]) {
       const cloneTarget: Record<string, number | string> = {};
       for (const propKey in anime.dest) {
-        const propValue = anime.dest[propKey];
-        if (Array.isArray(propValue)) {
-          // 不支持from-to模式
-          // 不支持keyframe类型
-        } else {
-          cloneTarget[propKey] = target[propKey];
-        }
+        // 不支持from-to模式
+        // 不支持keyframe类型
+        cloneTarget[propKey] = target[propKey];
       }
       cloneTargets.push(cloneTarget);
     }
@@ -54,11 +49,9 @@ export default (anime: Anime) => {
           let dest = anime.dest[key];
           // 对象类型
           if (typeof dest === "object") {
-            if (Array.isArray(dest)) {
+            if (!Array.isArray(dest)) {
               // 不支持keyframe模式
-            } else {
-              // nest模式
-              // 支持 {value: 1, duration: 500, easing: 'linear'}
+              // 支持nest模式 {value: 1, duration: 500, easing: 'linear'}
               const { value, duration, easing } = dest;
               if (current <= start + duration) {
                 elapsed = penner()[easing ? easing : anime.easing]()(

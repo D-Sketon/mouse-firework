@@ -6,7 +6,6 @@ import type {
   BasicProp,
   FromToProp,
   NestProp,
-  KeyFrameProp,
   AnimeOptions,
 } from "./types";
 
@@ -21,7 +20,6 @@ export default class Anime {
     | BasicProp
     | FromToProp
     | NestProp
-    | KeyFrameProp
   >;
   tl: Timeline;
   isPlay: boolean;

@@ -34,20 +34,21 @@ export default abstract class BaseEntity {
   abstract paint(): void;
 
   draw() {
-    this.ctx.save();
-    this.ctx.translate(this.x, this.y);
-    this.ctx.rotate(this.rotation * (Math.PI / 180));
-    this.ctx.globalAlpha = this.alpha;
+    const { ctx, x, y } = this;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(this.rotation * (Math.PI / 180));
+    ctx.globalAlpha = this.alpha;
     this.paint();
     if (this.lineWidth) {
-      this.ctx.lineWidth = this.lineWidth;
-      this.ctx.strokeStyle = this.color;
-      this.ctx.stroke();
+      ctx.lineWidth = this.lineWidth;
+      ctx.strokeStyle = this.color;
+      ctx.stroke();
     } else {
-      this.ctx.fillStyle = this.color;
-      this.ctx.fill();
+      ctx.fillStyle = this.color;
+      ctx.fill();
     }
-    this.ctx.globalAlpha = 1;
-    this.ctx.restore();
+    ctx.globalAlpha = 1;
+    ctx.restore();
   }
 }
