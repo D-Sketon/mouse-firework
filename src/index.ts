@@ -7,7 +7,8 @@ import type {
   FireworkType,
   ParticleOptions,
   PointType,
-  RingOptions,
+  RotateOptions,
+  StarOptions,
 } from "./types";
 import { hasAncestor, sample } from "./utils";
 
@@ -54,52 +55,36 @@ const setParticleDirection = (
 
 const setEndPos = (p: FireworkType, particle: ParticleOptions) => {
   const { move } = particle;
-  if (move === "emit") {
+  if (move.includes("emit")) {
     const { emitRadius = [50, 180] } =
       (particle.moveOptions as EmitOptions) ?? {};
     p.endPos = setParticleDirection(p, sample(emitRadius));
   }
 };
 
+const setEndRotation = (p: FireworkType, particle: ParticleOptions) => {
+  const { move } = particle;
+  if (move.includes("rotate")) {
+    const { angle = [-180, 180] } =
+      (particle.moveOptions as RotateOptions) ?? {};
+    p.endRotation = sample(angle);
+  }
+};
+
 const setParticleMovement = (particle: ParticleOptions) => {
   const { move } = particle;
-  switch (move) {
-    case "emit": {
-      const {
-        radius = 0.1,
-        alphaChange = false,
-        alpha = 0,
-        alphaEasing = "linear",
-        alphaDuration = [600, 800],
-      } = (particle.moveOptions as EmitOptions) ?? {};
-      let alphaOptions = {};
-      if (alphaChange) {
-        alphaOptions = {
-          alpha: {
-            value: sample(alpha),
-            easing: alphaEasing,
-            duration: sample(alphaDuration),
-          },
-        };
-      }
-      return {
-        x: (p: FireworkType) => p.endPos.x,
-        y: (p: FireworkType) => p.endPos.y,
-        radius: sample(radius),
-        ...alphaOptions,
-      };
-    }
-    case "diffuse": {
-      const {
-        diffuseRadius = [80, 160],
-        lineWidth = 0,
-        alpha = 0,
-        alphaEasing = "linear",
-        alphaDuration = [600, 800],
-      } = (particle.moveOptions as DiffuseOptions) ?? {};
-      return {
-        radius: sample(diffuseRadius),
-        lineWidth: sample(lineWidth),
+  let dist: Record<string, any> = {};
+  if (move.includes("emit")) {
+    const {
+      radius = 0.1,
+      alphaChange = false,
+      alpha = 0,
+      alphaEasing = "linear",
+      alphaDuration = [600, 800],
+    } = (particle.moveOptions as EmitOptions) ?? {};
+    let alphaOptions = {};
+    if (alphaChange) {
+      alphaOptions = {
         alpha: {
           value: sample(alpha),
           easing: alphaEasing,
@@ -107,7 +92,39 @@ const setParticleMovement = (particle: ParticleOptions) => {
         },
       };
     }
+    dist = {
+      ...dist,
+      x: (p: FireworkType) => p.endPos.x,
+      y: (p: FireworkType) => p.endPos.y,
+      radius: sample(radius),
+      ...alphaOptions,
+    };
+  } else if (move.includes("diffuse")) {
+    const {
+      diffuseRadius = [80, 160],
+      lineWidth = 0,
+      alpha = 0,
+      alphaEasing = "linear",
+      alphaDuration = [600, 800],
+    } = (particle.moveOptions as DiffuseOptions) ?? {};
+    dist = {
+      ...dist,
+      radius: sample(diffuseRadius),
+      lineWidth: sample(lineWidth),
+      alpha: {
+        value: sample(alpha),
+        easing: alphaEasing,
+        duration: sample(alphaDuration),
+      },
+    };
   }
+  if (move.includes("rotate")) {
+    dist = {
+      ...dist,
+      rotation: (p: FireworkType) => p.endRotation,
+    };
+  }
+  return dist;
 };
 
 const createCircle = (
@@ -116,7 +133,11 @@ const createCircle = (
   particle: ParticleOptions
 ): FireworkType[] => {
   const num = sample(particle.number);
-  const { radius, alpha = 1 } = particle.shapeOptions as CircleOptions;
+  const {
+    radius,
+    alpha = 1,
+    lineWidth,
+  } = particle.shapeOptions as CircleOptions;
   const circles = [];
   for (let i = 0; i < num; i++) {
     const p: FireworkType = {
@@ -125,32 +146,41 @@ const createCircle = (
       color: undefined,
       radius: undefined,
       endPos: undefined,
+      rotation: 0,
+      endRotation: undefined,
       draw() {
         ctx.globalAlpha = p.alpha;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI, true);
-        ctx.fillStyle = p.color;
-        ctx.fill();
+        if (lineWidth) {
+          ctx.lineWidth = p.lineWidth;
+          ctx.strokeStyle = p.color;
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
         ctx.globalAlpha = 1;
       },
     };
     p.color = particle.colors[anime.random(0, particle.colors.length - 1)];
     p.radius = sample(radius);
     p.alpha = sample(alpha);
+    if (lineWidth) {
+      p.lineWidth = sample(lineWidth);
+    }
     setEndPos(p, particle);
+    setEndRotation(p, particle);
     circles.push(p);
   }
   return circles;
 };
 
-const createRing = (
-  x: number,
-  y: number,
-  particle: ParticleOptions
-): FireworkType[] => {
+const createStar = (x: number, y: number, particle: ParticleOptions) => {
   const num = sample(particle.number);
-  const { radius, alpha = 1, lineWidth } = particle.shapeOptions as RingOptions;
-  const rings = [];
+  const { radius, alpha = 1, lineWidth } = particle.shapeOptions as StarOptions;
+  const spikes = sample((particle.shapeOptions as StarOptions).spikes);
+  const stars = [];
   for (let i = 0; i < num; i++) {
     const p: FireworkType = {
       x,
@@ -158,24 +188,48 @@ const createRing = (
       color: undefined,
       radius: undefined,
       endPos: undefined,
+      rotation: 0,
+      endRotation: undefined,
       draw() {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation * (Math.PI / 180));
         ctx.globalAlpha = p.alpha;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI, true);
-        ctx.lineWidth = p.lineWidth;
-        ctx.strokeStyle = p.color;
-        ctx.stroke();
+        ctx.moveTo(0, 0 - p.radius);
+        for (let i = 0; i < spikes * 2; i++) {
+          const angle = (i * Math.PI) / spikes - Math.PI / 2;
+          const length = i % 2 === 0 ? p.radius : p.radius * 0.5;
+
+          const px = Math.cos(angle) * length;
+          const py = Math.sin(angle) * length;
+
+          ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        if (lineWidth) {
+          ctx.lineWidth = p.lineWidth;
+          ctx.strokeStyle = p.color;
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
         ctx.globalAlpha = 1;
+        ctx.restore();
       },
     };
     p.color = particle.colors[anime.random(0, particle.colors.length - 1)];
     p.radius = sample(radius);
     p.alpha = sample(alpha);
-    p.lineWidth = sample(lineWidth);
+    if (lineWidth) {
+      p.lineWidth = sample(lineWidth);
+    }
     setEndPos(p, particle);
-    rings.push(p);
+    setEndRotation(p, particle);
+    stars.push(p);
   }
-  return rings;
+  return stars;
 };
 
 const renderParticle = (targets: FireworkType[]): void => {
@@ -224,8 +278,8 @@ const animateParticles = (x: number, y: number): void => {
     let targets = [];
     if (particle.shape === "circle") {
       targets = createCircle(x, y, particle);
-    } else if (particle.shape === "ring") {
-      targets = createRing(x, y, particle);
+    } else if (particle.shape === "star") {
+      targets = createStar(x, y, particle);
     }
     const dist = setParticleMovement(particle);
     timeLine.add({

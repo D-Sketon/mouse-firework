@@ -12,3 +12,5 @@ coverage/
 /dist
 
 pnpm-lock.yaml
+
+/test

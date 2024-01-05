@@ -64,25 +64,29 @@ e.g.
 interface FireworkOptions {
   excludeElements: string[];
   particles: {
-    shape: "circle" | "ring";
-    move: "emit" | "diffuse";
+    shape: "circle" | "star";
+    move: Array<"emit" | "diffuse" | "rotate">;
     easing?: EasingTypes;
     colors: string[];
     number: number | [number, number];
     duration: number | [number, number];
     shapeOptions: CircleOptions | RingOptions;
-    moveOptions?: EmitOptions | DiffuseOptions;
+    moveOptions?: EmitOptions | DiffuseOptions | RotateOptions;
   }[];
 }
 
 type CircleOptions = {
   radius: number | [number, number];
   alpha?: number | [number, number];
+  lineWidth: number | [number, number];
 };
 
-type RingOptions = {
-  lineWidth: number | [number, number];
-} & CircleOptions;
+type StarOptions = {
+  radius: number | [number, number];
+  spikes: number | [number, number];
+  alpha?: number | [number, number];
+  lineWidth?: number | [number, number];
+};
 
 type EmitOptions = {
   emitRadius?: number | [number, number]; // default [50, 180]
@@ -100,6 +104,10 @@ type DiffuseOptions = {
   alphaEasing?: EasingTypes; // default linear
   alphaDuration?: number | [number, number]; // default [600, 800]
 };
+
+type RotateOptions = {
+  angle?: number | [number, number]; // default [-180, 180]
+};
 ```
 
 ### excludeElements(`string[]`)
@@ -112,11 +120,11 @@ It is recommended to exclude animations on elements like `a` and `buttons` tags
 
 Specific options of firework particles
 
-#### shape(`"circle" | "ring"`)
+#### shape(`"circle" | "star"`)
 
-Shape of the particles, `circle` for solid, `ring` for hollow
+Shape of the particles
 
-#### move(`"emit" | "diffuse"`)
+#### move(`Array<"emit" | "diffuse" | "rotate">`)
 
 The way the particles move, `emit` indicates random movement from the center in all directions, `diffuse` indicates getting bigger and fading from the center
 
@@ -162,21 +170,29 @@ Initial radius of the circle, support interval
 
 Initial alpha of the circle, support interval
 
-##### RingOptions
+###### lineWidth(`number | [number, number]`)
 
-Initial properties of a ring
+If set, the shape changes to hollow
+
+Initial lineWidth of the circle, support interval
+
+##### StarOptions
 
 ###### radius(`number | [number, number]`)
 
-Same as the `CircleOptions`
+Same
 
 ###### alpha(`number | [number, number]`, default = `1`)
 
-Same as the `CircleOptions`
+Same
 
 ###### lineWidth(`number | [number, number]`)
 
-Initial lineWidth of the ring, support interval
+Same
+
+###### spikes(`number | [number, number]`)
+
+Number of star spikes, support interval
 
 #### moveOptions(optional)
 
@@ -227,3 +243,9 @@ Easing function of the alpha, default linear, see [types](https://github.com/the
 ###### alphaDuration(`number | [number, number]`, default = `[600, 800]`)
 
 Duration of alpha changes during diffusion, default 600-800ms
+
+##### RotateOptions
+
+###### angle(`number | [number, number]`, default = `[-180, 180]`)
+
+Angle of rotation in degrees, default -180-180deg
