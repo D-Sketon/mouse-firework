@@ -13,6 +13,13 @@ export type StarOptions = {
   lineWidth?: number | [number, number];
 };
 
+export type PolygonOptions = {
+  radius: number | [number, number];
+  sides: number | [number, number];
+  alpha?: number | [number, number];
+  lineWidth?: number | [number, number];
+};
+
 export type EmitOptions = {
   emitRadius?: number | [number, number]; // default [50, 180]
   radius?: number | [number, number]; // default 0.1
@@ -35,13 +42,13 @@ export type RotateOptions = {
 };
 
 export interface ParticleOptions {
-  shape: "circle" | "star";
+  shape: "circle" | "star" | "polygon";
   move: Array<"emit" | "diffuse" | "rotate">;
   easing?: EasingTypes;
   colors: string[];
   number: number | [number, number];
   duration: number | [number, number];
-  shapeOptions: CircleOptions | StarOptions;
+  shapeOptions: CircleOptions | StarOptions | PolygonOptions;
   moveOptions?: EmitOptions | DiffuseOptions | RotateOptions;
 }
 

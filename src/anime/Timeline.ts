@@ -2,10 +2,7 @@ import Anime from "./Anime";
 import type { AnimeOptions } from "./types";
 
 export default class Timeline {
-  queue: Anime[];
-  constructor() {
-    this.queue = [];
-  }
+  queue: Anime[] = [];
 
   add(options?: AnimeOptions) {
     this.queue.push(new Anime(options));

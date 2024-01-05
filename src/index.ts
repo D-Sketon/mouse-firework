@@ -8,6 +8,7 @@ import type {
   FireworkType,
   ParticleOptions,
   PointType,
+  PolygonOptions,
   RotateOptions,
   StarOptions,
 } from "./types";
@@ -177,7 +178,11 @@ const createCircle = (
   return circles;
 };
 
-const createStar = (x: number, y: number, particle: ParticleOptions) => {
+const createStar = (
+  x: number,
+  y: number,
+  particle: ParticleOptions
+): FireworkType[] => {
   const num = sample(particle.number);
   const { radius, alpha = 1, lineWidth } = particle.shapeOptions as StarOptions;
   const spikes = sample((particle.shapeOptions as StarOptions).spikes);
@@ -233,6 +238,72 @@ const createStar = (x: number, y: number, particle: ParticleOptions) => {
   return stars;
 };
 
+const createPolygon = (
+  x: number,
+  y: number,
+  particle: ParticleOptions
+): FireworkType[] => {
+  const num = sample(particle.number);
+  const {
+    radius,
+    alpha = 1,
+    lineWidth,
+  } = particle.shapeOptions as PolygonOptions;
+  const polygons = [];
+  const sides = sample((particle.shapeOptions as PolygonOptions).sides);
+  for (let i = 0; i < num; i++) {
+    const p: FireworkType = {
+      x,
+      y,
+      color: undefined,
+      radius: undefined,
+      endPos: undefined,
+      rotation: 0,
+      endRotation: undefined,
+      draw() {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation * (Math.PI / 180));
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.moveTo(
+          this.radius * Math.cos(0),
+          this.radius * Math.sin(0)
+        );
+
+        for (let i = 1; i <= sides; i++) {
+          const angle = (i * 2 * Math.PI) / sides;
+          ctx.lineTo(
+            this.radius * Math.cos(angle),
+            this.radius * Math.sin(angle)
+          );
+        }
+        ctx.closePath();
+        if (lineWidth) {
+          ctx.lineWidth = p.lineWidth;
+          ctx.strokeStyle = p.color;
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.restore();
+      },
+    };
+    p.color = particle.colors[anime.random(0, particle.colors.length - 1)];
+    p.radius = sample(radius);
+    p.alpha = sample(alpha);
+    if (lineWidth) {
+      p.lineWidth = sample(lineWidth);
+    }
+    setEndPos(p, particle);
+    setEndRotation(p, particle);
+    polygons.push(p);
+  }
+  return polygons;
+};
+
 const renderParticle = (targets: FireworkType[]): void => {
   for (const target of targets) {
     target.draw();
@@ -281,6 +352,8 @@ const animateParticles = (x: number, y: number): void => {
       targets = createCircle(x, y, particle);
     } else if (particle.shape === "star") {
       targets = createStar(x, y, particle);
+    } else if (particle.shape === "polygon") {
+      targets = createPolygon(x, y, particle);
     }
     const dist = setParticleMovement(particle);
     timeLine.add({
