@@ -13,14 +13,14 @@
   <link rel="stylesheet" href="./lib/addon/hint/show-hint.css">
   <style>
     body {
-      background-color: grey;
+      background-color: black;
       margin: 0;
       padding: 0;
     }
 
     .CodeMirror {
       width: 50vw;
-      height: calc(100vh - 40px);
+      height: calc(100vh - 90px);
     }
 
     button {
@@ -28,13 +28,16 @@
       height: 40px;
       border: none;
       outline: none;
-      padding: 10px 20px;
       cursor: pointer;
       border-radius: 5px;
       background-color: #3498db;
       color: #ffffff;
-      font-size: 15px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button.template {
+      background-color: #1f5092;
+      margin: 5px 0;
     }
 
     button:hover {
@@ -102,6 +105,153 @@
     }
   ]
 }`.trim()
+
+    const templateArray = [
+      `
+{
+  "excludeElements": ["a"],
+  "particles": [
+    {
+      "shape": "circle",
+      "move": ["emit"],
+      "easing": "easeOutExpo",
+      "colors": [
+        "rgba(255,182,185,.9)",
+        "rgba(250,227,217,.9)",
+        "rgba(187,222,214,.9)",
+        "rgba(138,198,209,.9)"
+      ],
+      "number": 30,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": [16, 32]
+      }
+    },
+    {
+      "shape": "circle",
+      "move": ["diffuse"],
+      "easing": "easeOutExpo",
+      "colors": ["#FFF"],
+      "number": 1,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": 20,
+        "alpha": 0.5,
+        "lineWidth": 6
+      }
+    }
+  ]
+}
+`,
+      `
+      {
+  "excludeElements": ["a"],
+  "particles": [
+    {
+      "shape": "circle",
+      "move": ["emit"],
+      "easing": "easeOutExpo",
+      "colors": [
+      "#ff324a", 
+      "#31ffa6", 
+      "#206eff", 
+      "#ffff99"
+      ],
+      "number": 30,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": [16, 32]
+      }
+    }
+  ]
+}
+`,
+      `
+{
+  "excludeElements": ["a"],
+  "particles": [
+    {
+      "shape": "polygon",
+      "move": ["emit", "rotate"],
+      "easing": "easeOutExpo",
+      "colors": [
+      "#ff324a", 
+      "#31ffa6", 
+      "#206eff", 
+      "#ffff99"
+      ],
+      "number": 30,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": [16, 32],
+        "sides": 5
+      }
+    },
+    {
+      "shape": "polygon",
+      "move": ["diffuse","rotate"],
+      "easing": "easeOutExpo",
+      "colors": ["#FFF"],
+      "number": 3,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": 20,
+        "alpha": 0.5,
+        "lineWidth": 6,
+        "sides": 5
+      }
+    }
+  ]
+}
+      `, `
+      {
+  "excludeElements": ["a"],
+  "particles": [
+    {
+      "shape": "polygon",
+      "move": ["diffuse","rotate"],
+      "easing": "easeOutExpo",
+      "colors": ["#FFF"],
+      "number": 1,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": 20,
+        "alpha": 0.5,
+        "lineWidth": 6,
+        "sides": 5
+      }
+    },
+    {
+      "shape": "star",
+      "move": ["diffuse","rotate"],
+      "easing": "easeOutExpo",
+      "colors": ["#FFF"],
+      "number": 1,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": 20,
+        "alpha": 0.5,
+        "lineWidth": 6,
+        "spikes": 5
+      }
+    },
+    {
+      "shape": "circle",
+      "move": ["diffuse","rotate"],
+      "easing": "easeOutExpo",
+      "colors": ["#FFF"],
+      "number": 1,
+      "duration": [1200, 1800],
+      "shapeOptions": {
+        "radius": 20,
+        "alpha": 0.5,
+        "lineWidth": 6
+      }
+    }
+  ]
+}
+      `
+    ]
     const editor = CodeMirror(document.body, {
       mode: "application/json",
       value: defaultOptions,
@@ -125,18 +275,39 @@
     editor.on('change', cm => {
       value = cm.getValue()
     })
+    const chooseTemplate = (number) => {
+      if (templateArray[number]) {
+        value = templateArray[number].trim()
+        editor.setValue(value)
+        firework(JSON.parse(value))
+      }
+    }
     const button = document.createElement('button')
     button.innerHTML = "application options"
     button.onclick = () => {
       try {
-        const options = JSON.parse(value)
-        firework(options)
+        firework(JSON.parse(value))
       } catch (e) {
         console.error(e)
         alert("invalid options!")
       }
     }
     document.querySelector('.CodeMirror').parentNode.appendChild(button)
+    const templateDiv = document.createElement('div')
+    templateDiv.style = `
+      background-color: #fff;
+      height: 50px;
+      display: flex;
+      width: 100vw;
+      gap: 5px;
+    `
+    templateDiv.innerHTML = `
+      <button class="template" onclick="chooseTemplate(0)">template 1</button>
+      <button class="template" onclick="chooseTemplate(1)">template 2</button>
+      <button class="template" onclick="chooseTemplate(2)">template 3</button>
+      <button class="template" onclick="chooseTemplate(3)">template 4</button>
+    `
+    document.querySelector('.CodeMirror').parentNode.appendChild(templateDiv)
 
   </script>
 </body>
