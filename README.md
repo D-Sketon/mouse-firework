@@ -1,6 +1,6 @@
 # mouse-firework
 
-![NPM](https://img.shields.io/npm/l/mouse-firework) ![npm](https://img.shields.io/npm/v/mouse-firework) ![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/mouse-firework)
+![NPM](https://img.shields.io/npm/l/mouse-firework) ![npm](https://img.shields.io/npm/v/mouse-firework) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/mouse-firework)
 
 Fireworks effects appear when you click the mouse. Ideal for insertion in blogs and other such sites
 
