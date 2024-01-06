@@ -19,11 +19,16 @@ export const createCircle = (
   particle: ParticleOptions
 ): Circle[] => {
   const num = sample(particle.number);
-  const {
+  let {
     radius,
-    alpha = 1,
+    alpha = 100,
     lineWidth,
   } = particle.shapeOptions as CircleOptions;
+  if (Array.isArray(alpha)) {
+    alpha = alpha.map((a) => a * 100) as [number, number];
+  } else {
+    alpha *= 100;
+  }
   const circles = [];
   for (let i = 0; i < num; i++) {
     const p = new Circle(
@@ -32,7 +37,7 @@ export const createCircle = (
       y,
       particle.colors[anime.random(0, particle.colors.length - 1)],
       sample(radius),
-      sample(alpha),
+      sample(alpha) / 100,
       sample(lineWidth)
     );
     setEndPos(p, particle);
@@ -49,7 +54,12 @@ export const createStar = (
   particle: ParticleOptions
 ): Star[] => {
   const num = sample(particle.number);
-  const { radius, alpha = 1, lineWidth } = particle.shapeOptions as StarOptions;
+  let { radius, alpha = 100, lineWidth } = particle.shapeOptions as StarOptions;
+  if (Array.isArray(alpha)) {
+    alpha = alpha.map((a) => a * 100) as [number, number];
+  } else {
+    alpha *= 100;
+  }
   const spikes = sample((particle.shapeOptions as StarOptions).spikes);
   const stars = [];
   for (let i = 0; i < num; i++) {
@@ -59,7 +69,7 @@ export const createStar = (
       y,
       particle.colors[anime.random(0, particle.colors.length - 1)],
       sample(radius),
-      sample(alpha),
+      sample(alpha) / 100,
       spikes,
       sample(lineWidth)
     );
@@ -77,11 +87,16 @@ export const createPolygon = (
   particle: ParticleOptions
 ): Polygon[] => {
   const num = sample(particle.number);
-  const {
+  let {
     radius,
-    alpha = 1,
+    alpha = 100,
     lineWidth,
   } = particle.shapeOptions as PolygonOptions;
+  if (Array.isArray(alpha)) {
+    alpha = alpha.map((a) => a * 100) as [number, number];
+  } else {
+    alpha *= 100;
+  }
   const polygons = [];
   const sides = sample((particle.shapeOptions as PolygonOptions).sides);
   for (let i = 0; i < num; i++) {
@@ -91,7 +106,7 @@ export const createPolygon = (
       y,
       particle.colors[anime.random(0, particle.colors.length - 1)],
       sample(radius),
-      sample(alpha),
+      sample(alpha) / 100,
       sides,
       sample(lineWidth)
     );

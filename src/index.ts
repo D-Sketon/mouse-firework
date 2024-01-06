@@ -47,15 +47,20 @@ const setParticleMovement = (particle: ParticleOptions) => {
     const {
       radius = 0.1,
       alphaChange = false,
-      alpha = 0,
       alphaEasing = "linear",
       alphaDuration = [600, 800],
     } = (particle.moveOptions as EmitOptions) ?? {};
+    let { alpha = 0 } = (particle.moveOptions as EmitOptions) ?? {};
+    if (Array.isArray(alpha)) {
+      alpha = alpha.map((a) => a * 100) as [number, number];
+    } else {
+      alpha *= 100;
+    }
     let alphaOptions = {};
     if (alphaChange) {
       alphaOptions = {
         alpha: {
-          value: sample(alpha),
+          value: sample(alpha) / 100,
           easing: alphaEasing,
           duration: sample(alphaDuration),
         },
@@ -72,16 +77,21 @@ const setParticleMovement = (particle: ParticleOptions) => {
     const {
       diffuseRadius = [80, 160],
       lineWidth = 0,
-      alpha = 0,
       alphaEasing = "linear",
       alphaDuration = [600, 800],
     } = (particle.moveOptions as DiffuseOptions) ?? {};
+    let { alpha = 0 } = (particle.moveOptions as DiffuseOptions) ?? {};
+    if (Array.isArray(alpha)) {
+      alpha = alpha.map((a) => a * 100) as [number, number];
+    } else {
+      alpha *= 100;
+    }
     dist = {
       ...dist,
       radius: sample(diffuseRadius),
       lineWidth: sample(lineWidth),
       alpha: {
-        value: sample(alpha),
+        value: sample(alpha) / 100,
         easing: alphaEasing,
         duration: sample(alphaDuration),
       },
