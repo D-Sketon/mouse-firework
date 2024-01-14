@@ -23,12 +23,13 @@ let pointerX = 0;
 let pointerY = 0;
 
 const setCanvasSize = (): void => {
-  const scale = window.devicePixelRatio || 1;
-  canvasEl.width = window.innerWidth * scale;
-  canvasEl.height = window.innerHeight * scale;
+  canvasEl.width = window.innerWidth * 2;
+  canvasEl.height = window.innerHeight * 2;
   canvasEl.style.width = window.innerWidth + "px";
   canvasEl.style.height = window.innerHeight + "px";
-  canvasEl.getContext("2d").scale(scale, scale);
+  const ctx = canvasEl.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(2, 2);
 };
 
 const updateCoords = (e: MouseEvent | TouchEvent): void => {
