@@ -1,13 +1,16 @@
-# mouse-firework
+<div align = center>
+  <img src="https://fastly.jsdelivr.net/gh/D-Sketon/blog-img/mouse-firework.gif"/>
+  <h1>mouse-firework</h1>
+  <img alt="NPM License" src="https://img.shields.io/npm/l/mouse-firework">
+  <img alt="NPM Version" src="https://img.shields.io/npm/v/mouse-firework">
+  <img alt="NPM Bundle Size" src="https://img.shields.io/bundlephobia/minzip/mouse-firework">
 
-![NPM](https://img.shields.io/npm/l/mouse-firework) ![npm](https://img.shields.io/npm/v/mouse-firework) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/mouse-firework)
+  [Demo](https://d-sketon.github.io/mouse-firework)
+</div>
 
-![](https://fastly.jsdelivr.net/gh/D-Sketon/blog-img/mouse-firework.gif)
+---
 
 Fireworks effects appear when you click the mouse. Ideal for insertion in blogs and other such sites
-
-
-[Demo](https://d-sketon.github.io/mouse-firework)
 
 ## Usage
 
