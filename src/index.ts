@@ -26,7 +26,8 @@ const setCanvasSize = (): void => {
   canvasEl.width = document.documentElement.clientWidth * 2;
   canvasEl.height = document.documentElement.clientWidth * 2;
   canvasEl.style.width = document.documentElement.clientWidth + "px";
-  canvasEl.style.height = document.documentElement.clientWidth + "px";
+  canvasEl.style.height = document.documentElement.clientHeight + "px";
+
   const ctx = canvasEl.getContext("2d");
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(2, 2);
