@@ -24,7 +24,7 @@ let pointerY = 0;
 
 const setCanvasSize = (): void => {
   canvasEl.width = document.documentElement.clientWidth * 2;
-  canvasEl.height = document.documentElement.clientWidth * 2;
+  canvasEl.height = document.documentElement.clientHeight * 2;
   canvasEl.style.width = document.documentElement.clientWidth + "px";
   canvasEl.style.height = document.documentElement.clientHeight + "px";
 
