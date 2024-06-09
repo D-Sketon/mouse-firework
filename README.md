@@ -4,6 +4,8 @@
   <img alt="NPM License" src="https://img.shields.io/npm/l/mouse-firework">
   <img alt="NPM Version" src="https://img.shields.io/npm/v/mouse-firework">
   <img alt="NPM Bundle Size" src="https://img.shields.io/bundlephobia/minzip/mouse-firework">
+  <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/mouse-firework">
+  <img alt="jsDelivr hits (npm)" src="https://img.shields.io/jsdelivr/npm/hm/mouse-firework">
 
   [Demo](https://d-sketon.github.io/mouse-firework)
 </div>
