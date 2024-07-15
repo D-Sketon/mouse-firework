@@ -6,6 +6,7 @@
   <img alt="NPM Bundle Size" src="https://img.shields.io/bundlephobia/minzip/mouse-firework">
   <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/mouse-firework">
   <img alt="jsDelivr hits (npm)" src="https://img.shields.io/jsdelivr/npm/hm/mouse-firework">
+  <a href='https://coveralls.io/github/D-Sketon/mouse-firework?branch=main'><img src='https://coveralls.io/repos/github/D-Sketon/mouse-firework/badge.svg?branch=main' alt='Coverage Status' /></a>
 
   [Demo](https://d-sketon.github.io/mouse-firework)
 </div>
@@ -27,7 +28,7 @@ npm i mouse-firework --save
 or just use it in your browser
 
 ```html
-<script src="https://www.unpkg.com/mouse-firework@latest/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mouse-firework@latest/dist/index.umd.js"></script>
 ```
 
 ### Basic Usage
