@@ -19,7 +19,7 @@ export default class Star extends BaseEntity {
   paint(): void {
     const { ctx, spikes, radius } = this;
     ctx.beginPath();
-    ctx.moveTo(0, 0 - radius);
+    ctx.moveTo(0, -radius);
     for (let i = 0; i < spikes * 2; i++) {
       const angle = (i * Math.PI) / spikes - Math.PI / 2;
       const length = i % 2 === 0 ? radius : radius * 0.5;
@@ -30,3 +30,4 @@ export default class Star extends BaseEntity {
     ctx.closePath();
   }
 }
+ 

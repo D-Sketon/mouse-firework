@@ -1,16 +1,57 @@
 import anime from "theme-shokax-anime";
 // import anime from "./anime";
+import BaseEntity from "./entity/BaseEntity";
 
 import Circle from "./entity/Circle";
 import Polygon from "./entity/Polygon";
 import Star from "./entity/Star";
-import {
-  ParticleOptions,
-  CircleOptions,
-  StarOptions,
-  PolygonOptions,
-} from "./types";
-import { sample, setEndPos, setEndRotation } from "./utils";
+import { ParticleOptions, StarOptions, PolygonOptions } from "./types";
+import { formatAlpha, sample, setEndPos, setEndRotation } from "./utils";
+
+const preProcess = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  particle: ParticleOptions,
+  shapeType: typeof Circle | typeof Polygon | typeof Star
+) => {
+  const num = sample(particle.number);
+  let { radius, alpha = 1, lineWidth } = particle.shapeOptions;
+  alpha = formatAlpha(alpha);
+  const shapes: BaseEntity[] = [];
+  for (let i = 0; i < num; i++) {
+    const color = particle.colors[anime.random(0, particle.colors.length - 1)];
+    let p: BaseEntity;
+    if (shapeType === Circle) {
+      p = new shapeType(
+        ctx,
+        x,
+        y,
+        color,
+        sample(radius),
+        sample(alpha) / 100,
+        sample(lineWidth)
+      );
+    } else {
+      p = new shapeType(
+        ctx,
+        x,
+        y,
+        color,
+        sample(radius),
+        sample(alpha) / 100,
+        shapeType === Star
+          ? sample((particle.shapeOptions as StarOptions).spikes)
+          : sample((particle.shapeOptions as PolygonOptions).sides),
+        sample(lineWidth)
+      );
+    }
+    setEndPos(p, particle);
+    setEndRotation(p, particle);
+    shapes.push(p);
+  }
+  return shapes;
+};
 
 export const createCircle = (
   ctx: CanvasRenderingContext2D,
@@ -18,33 +59,7 @@ export const createCircle = (
   y: number,
   particle: ParticleOptions
 ): Circle[] => {
-  const num = sample(particle.number);
-  let {
-    radius,
-    alpha = 100,
-    lineWidth,
-  } = particle.shapeOptions as CircleOptions;
-  if (Array.isArray(alpha)) {
-    alpha = alpha.map((a) => a * 100) as [number, number];
-  } else {
-    alpha *= 100;
-  }
-  const circles = [];
-  for (let i = 0; i < num; i++) {
-    const p = new Circle(
-      ctx,
-      x,
-      y,
-      particle.colors[anime.random(0, particle.colors.length - 1)],
-      sample(radius),
-      sample(alpha) / 100,
-      sample(lineWidth)
-    );
-    setEndPos(p, particle);
-    setEndRotation(p, particle);
-    circles.push(p);
-  }
-  return circles;
+  return preProcess(ctx, x, y, particle, Circle) as Circle[];
 };
 
 export const createStar = (
@@ -53,31 +68,7 @@ export const createStar = (
   y: number,
   particle: ParticleOptions
 ): Star[] => {
-  const num = sample(particle.number);
-  let { radius, alpha = 100, lineWidth } = particle.shapeOptions as StarOptions;
-  if (Array.isArray(alpha)) {
-    alpha = alpha.map((a) => a * 100) as [number, number];
-  } else {
-    alpha *= 100;
-  }
-  const spikes = sample((particle.shapeOptions as StarOptions).spikes);
-  const stars = [];
-  for (let i = 0; i < num; i++) {
-    const p = new Star(
-      ctx,
-      x,
-      y,
-      particle.colors[anime.random(0, particle.colors.length - 1)],
-      sample(radius),
-      sample(alpha) / 100,
-      spikes,
-      sample(lineWidth)
-    );
-    setEndPos(p, particle);
-    setEndRotation(p, particle);
-    stars.push(p);
-  }
-  return stars;
+  return preProcess(ctx, x, y, particle, Star) as Star[];
 };
 
 export const createPolygon = (
@@ -86,33 +77,5 @@ export const createPolygon = (
   y: number,
   particle: ParticleOptions
 ): Polygon[] => {
-  const num = sample(particle.number);
-  let {
-    radius,
-    alpha = 100,
-    lineWidth,
-  } = particle.shapeOptions as PolygonOptions;
-  if (Array.isArray(alpha)) {
-    alpha = alpha.map((a) => a * 100) as [number, number];
-  } else {
-    alpha *= 100;
-  }
-  const polygons = [];
-  const sides = sample((particle.shapeOptions as PolygonOptions).sides);
-  for (let i = 0; i < num; i++) {
-    const p = new Polygon(
-      ctx,
-      x,
-      y,
-      particle.colors[anime.random(0, particle.colors.length - 1)],
-      sample(radius),
-      sample(alpha) / 100,
-      sides,
-      sample(lineWidth)
-    );
-    setEndPos(p, particle);
-    setEndRotation(p, particle);
-    polygons.push(p);
-  }
-  return polygons;
+  return preProcess(ctx, x, y, particle, Polygon) as Polygon[];
 };
