@@ -24,7 +24,7 @@ export default class Anime {
   tl: Timeline;
   isPlay: boolean;
   constructor(options: AnimeOptions = defaultOptions) {
-    options = Object.assign({}, defaultOptions, options);
+    options = { ...defaultOptions, ...options };
     const {
       targets,
       duration,
@@ -42,7 +42,7 @@ export default class Anime {
   }
 
   timeline() {
-    if (this.tl === null) {
+    if (!this.tl) {
       this.tl = new Timeline();
     }
     return this.tl;

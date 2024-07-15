@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "types": [
       "node",
+      "mocha"
     ],
     "lib": ["dom", "ESNext"]
   },

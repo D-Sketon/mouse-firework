@@ -6,7 +6,7 @@ import type {
   FireworkOptions,
   ParticleOptions,
 } from "./types";
-import { hasAncestor, sample } from "./utils";
+import { formatAlpha, hasAncestor, sample } from "./utils";
 import BaseEntity from "./entity/BaseEntity";
 import { createCircle, createStar, createPolygon } from "./factory";
 
@@ -23,27 +23,26 @@ let pointerX = 0;
 let pointerY = 0;
 
 const setCanvasSize = (): void => {
-  canvasEl.width = document.documentElement.clientWidth * 2;
-  canvasEl.height = document.documentElement.clientHeight * 2;
-  canvasEl.style.width = document.documentElement.clientWidth + "px";
-  canvasEl.style.height = document.documentElement.clientHeight + "px";
-
-  const ctx = canvasEl.getContext("2d");
+  const { clientWidth: width, clientHeight: height } = document.documentElement;
+  canvasEl.width = width * 2;
+  canvasEl.height = height * 2;
+  canvasEl.style.width = width + "px";
+  canvasEl.style.height = height + "px";
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(2, 2);
 };
 
 const updateCoords = (e: MouseEvent | TouchEvent): void => {
   pointerX =
-    (e as MouseEvent).clientX ||
+    (e as MouseEvent).clientX ??
     ((e as TouchEvent).touches && (e as TouchEvent).touches[0].clientX);
   pointerY =
-    (e as MouseEvent).clientY ||
+    (e as MouseEvent).clientY ??
     ((e as TouchEvent).touches && (e as TouchEvent).touches[0].clientY);
 };
 
 const setParticleMovement = (particle: ParticleOptions) => {
-  const { move } = particle;
+  const { move, moveOptions } = particle;
   let dist: Record<string, any> = {};
   if (move.includes("emit")) {
     const {
@@ -51,25 +50,18 @@ const setParticleMovement = (particle: ParticleOptions) => {
       alphaChange = false,
       alphaEasing = "linear",
       alphaDuration = [600, 800],
-    } = (particle.moveOptions as EmitOptions) ?? {};
-    let { alpha = 0 } = (particle.moveOptions as EmitOptions) ?? {};
-    if (Array.isArray(alpha)) {
-      alpha = alpha.map((a) => a * 100) as [number, number];
-    } else {
-      alpha *= 100;
-    }
-    let alphaOptions = {};
-    if (alphaChange) {
-      alphaOptions = {
-        alpha: {
-          value: sample(alpha) / 100,
-          easing: alphaEasing,
-          duration: sample(alphaDuration),
-        },
-      };
-    }
+    } = (moveOptions as EmitOptions) ?? {};
+    const { alpha = 0 } = (moveOptions as EmitOptions) ?? {};
+    const alphaOptions = alphaChange
+      ? {
+          alpha: {
+            value: sample(formatAlpha(alpha)) / 100,
+            easing: alphaEasing,
+            duration: sample(alphaDuration),
+          },
+        }
+      : {};
     dist = {
-      ...dist,
       x: (p: BaseEntity) => p.endPos.x,
       y: (p: BaseEntity) => p.endPos.y,
       radius: sample(radius),
@@ -81,29 +73,20 @@ const setParticleMovement = (particle: ParticleOptions) => {
       lineWidth = 0,
       alphaEasing = "linear",
       alphaDuration = [600, 800],
-    } = (particle.moveOptions as DiffuseOptions) ?? {};
-    let { alpha = 0 } = (particle.moveOptions as DiffuseOptions) ?? {};
-    if (Array.isArray(alpha)) {
-      alpha = alpha.map((a) => a * 100) as [number, number];
-    } else {
-      alpha *= 100;
-    }
+    } = (moveOptions as DiffuseOptions) ?? {};
+    const { alpha = 0 } = (moveOptions as DiffuseOptions) ?? {};
     dist = {
-      ...dist,
       radius: sample(diffuseRadius),
       lineWidth: sample(lineWidth),
       alpha: {
-        value: sample(alpha) / 100,
+        value: sample(formatAlpha(alpha)) / 100,
         easing: alphaEasing,
         duration: sample(alphaDuration),
       },
     };
   }
   if (move.includes("rotate")) {
-    dist = {
-      ...dist,
-      rotation: (p: BaseEntity) => p.endRotation,
-    };
+    dist.rotation = (p: BaseEntity) => p.endRotation;
   }
   return dist;
 };
@@ -129,11 +112,13 @@ const initFireworks = (options: FireworkOptions) => {
   if (currentCallback) {
     document.removeEventListener(tap, currentCallback, false);
   }
-  currentCallback = (e) => {
-    for (const excludeElement of options.excludeElements) {
-      if (hasAncestor(<Element>e.target, excludeElement)) {
-        return;
-      }
+  currentCallback = (e: MouseEvent | TouchEvent) => {
+    if (
+      options.excludeElements.some((excludeElement) =>
+        hasAncestor(e.target as Element, excludeElement)
+      )
+    ) {
+      return;
     }
     render.play();
     updateCoords(e);
@@ -149,25 +134,28 @@ const animateParticles = (x: number, y: number): void => {
   if (!globalOptions) return;
   const { particles } = globalOptions;
   const timeLine = anime().timeline();
-  for (const particle of particles) {
-    const { duration, easing } = particle;
+  particles.forEach((particle) => {
     let targets = [];
-    if (particle.shape === "circle") {
-      targets = createCircle(ctx, x, y, particle);
-    } else if (particle.shape === "star") {
-      targets = createStar(ctx, x, y, particle);
-    } else if (particle.shape === "polygon") {
-      targets = createPolygon(ctx, x, y, particle);
+    switch (particle.shape) {
+      case "circle":
+        targets = createCircle(ctx, x, y, particle);
+        break;
+      case "star":
+        targets = createStar(ctx, x, y, particle);
+        break;
+      case "polygon":
+        targets = createPolygon(ctx, x, y, particle);
+        break;
     }
     const dist = setParticleMovement(particle);
     timeLine.add({
       targets,
-      duration: sample(duration),
-      easing,
+      duration: sample(particle.duration),
+      easing: particle.easing ?? "linear",
       update: renderParticle,
       ...dist,
     });
-  }
+  });
   timeLine.play();
 };
 

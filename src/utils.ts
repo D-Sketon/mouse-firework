@@ -9,10 +9,10 @@ export const sample = (raw: number | [number, number]): number => {
 
 export const hasAncestor = (node: Element, name: string): boolean => {
   name = name.toUpperCase();
-  do {
-    if (node === null || node === undefined) break;
+  while (node) {
     if (node.nodeName === name) return true;
-  } while ((node = <Element>node.parentNode) !== null);
+    node = node.parentNode as Element;
+  }
   return false;
 };
 
@@ -21,8 +21,7 @@ export const setEndPos = (p: BaseEntity, particle: ParticleOptions) => {
     let { emitRadius = [50, 180] } =
       (particle.moveOptions as EmitOptions) ?? {};
     const angle = (anime.random(0, 360) * Math.PI) / 180;
-    emitRadius = sample(emitRadius);
-    const radius = [-1, 1][anime.random(0, 1)] * emitRadius;
+    const radius = [-1, 1][anime.random(0, 1)] * sample(emitRadius);
     p.endPos = {
       x: p.x + radius * Math.cos(angle),
       y: p.y + radius * Math.sin(angle),
@@ -37,3 +36,10 @@ export const setEndRotation = (p: BaseEntity, particle: ParticleOptions) => {
     p.endRotation = sample(angle);
   }
 };
+
+export const formatAlpha = (alpha: number | [number, number]): [number, number] => {
+  if (Array.isArray(alpha)) {
+    return alpha.map((a) => a * 100) as [number, number];
+  }
+  return [alpha * 100, alpha * 100];
+}

@@ -8,7 +8,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
-    "build:umd": "rollup -c umd.config.mjs"
+    "build:umd": "rollup -c umd.config.mjs",
+    "test": "mocha -r ts-node/register 'test/**/*.ts'",
+    "test-cov": "c8 --reporter=lcov --reporter=text-summary npm test"
   },
   "author": "D-Sketon",
   "license": "MIT",
@@ -17,12 +19,23 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
+    "@types/chai": "^4.3.16",
+    "@types/jsdom": "^21.1.7",
+    "@types/mocha": "^10.0.7",
     "@types/node": "^20.10.6",
+    "@types/sinon": "^17.0.3",
+    "c8": "^10.1.2",
+    "chai": "^4.4.1",
+    "jsdom": "^24.1.0",
+    "mocha": "^10.6.0",
     "rollup": "^4.9.2",
+    "sinon": "^18.0.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.3",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "theme-shokax-anime": "^0.0.6"
+    "theme-shokax-anime": "^0.0.7"
   },
   "repository": {
     "type": "git",

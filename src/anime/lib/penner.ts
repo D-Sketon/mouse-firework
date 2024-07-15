@@ -8,6 +8,7 @@ export default (): EasingFunctions => {
 
   const functionEasings = {
     Sine: () => (t: number) => 1 - Math.cos((t * Math.PI) / 2),
+    Expo: () => (t: number) => (t ? Math.pow(2, 10 * t - 10) : 0),
     Circ: () => (t: number) => 1 - Math.sqrt(1 - t * t),
     Back: () => (t: number) => t * t * (3 * t - 2),
     Bounce: () => (t: number) => {
@@ -20,9 +21,7 @@ export default (): EasingFunctions => {
     },
   };
 
-  const baseEasings = ["Quad", "Cubic", "Quart", "Quint", "Expo"];
-
-  baseEasings.forEach((name, i) => {
+  ["Quad", "Cubic", "Quart", "Quint"].forEach((name, i) => {
     functionEasings[name] = () => (t: number) => Math.pow(t, i + 2);
   });
 

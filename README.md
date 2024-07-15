@@ -47,7 +47,7 @@ e.g.
     particles: [
       {
         shape: "circle",
-        move: "emit",
+        move: ["emit"],
         easing: "easeOutExpo",
         colors: [
           "rgba(255,182,185,.9)",

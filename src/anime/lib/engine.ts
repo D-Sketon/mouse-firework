@@ -52,11 +52,9 @@ export default (anime: Anime) => {
             if (!Array.isArray(dest)) {
               // 不支持keyframe模式
               // 支持nest模式 {value: 1, duration: 500, easing: 'linear'}
-              const { value, duration, easing } = dest;
+              const { value, duration, easing = anime.easing } = dest;
               if (current <= start + duration) {
-                elapsed = penner()[easing ? easing : anime.easing]()(
-                  (current - start) / duration
-                );
+                elapsed = penner()[easing]()((current - start) / duration);
                 change(target, origin, elapsed, value, key);
               } else if (final) {
                 change(target, origin, elapsed, value, key, final);
@@ -82,21 +80,18 @@ export default (anime: Anime) => {
       // 数据回正
       changeAll(1, current, true);
       anime.isPlay = false;
-      return;
-    }
-    // 还未开始，继续delay
-    if (current < start) {
+    } else {
+      if (current >= start) {
+        const elapsed = penner()[anime.easing]()(
+          (current - start) / anime.duration
+        );
+        isValid && changeAll(elapsed, current);
+        // 调用更新回调
+        typeof anime.update == "function" &&
+          anime.update(anime.targets as object[]);
+      }
       requestAnimationFrame(step);
-      return;
     }
-    const elapsed = penner()[anime.easing]()(
-      (current - start) / anime.duration
-    );
-    isValid && changeAll(elapsed, current);
-    // 调用更新回调
-    typeof anime.update == "function" &&
-      anime.update(anime.targets as object[]);
-    requestAnimationFrame(step);
   };
 
   initTarget();
