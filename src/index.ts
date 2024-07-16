@@ -50,31 +50,28 @@ const setParticleMovement = (particle: ParticleOptions) => {
       alphaChange = false,
       alphaEasing = "linear",
       alphaDuration = [600, 800],
+      alpha = 0,
     } = (moveOptions as EmitOptions) ?? {};
-    const { alpha = 0 } = (moveOptions as EmitOptions) ?? {};
-    const alphaOptions = alphaChange
-      ? {
-          alpha: {
-            value: sample(formatAlpha(alpha)) / 100,
-            easing: alphaEasing,
-            duration: sample(alphaDuration),
-          },
-        }
-      : {};
     dist = {
       x: (p: BaseEntity) => p.endPos.x,
       y: (p: BaseEntity) => p.endPos.y,
       radius: sample(radius),
-      ...alphaOptions,
     };
+    if (alphaChange) {
+      dist.alpha = {
+        value: sample(formatAlpha(alpha)) / 100,
+        easing: alphaEasing,
+        duration: sample(alphaDuration),
+      };
+    }
   } else if (move.includes("diffuse")) {
     const {
       diffuseRadius = [80, 160],
       lineWidth = 0,
       alphaEasing = "linear",
       alphaDuration = [600, 800],
+      alpha = 0,
     } = (moveOptions as DiffuseOptions) ?? {};
-    const { alpha = 0 } = (moveOptions as DiffuseOptions) ?? {};
     dist = {
       radius: sample(diffuseRadius),
       lineWidth: sample(lineWidth),
@@ -145,15 +142,13 @@ const animateParticles = (x: number, y: number): void => {
         break;
       case "polygon":
         targets = createPolygon(ctx, x, y, particle);
-        break;
     }
-    const dist = setParticleMovement(particle);
     timeLine.add({
       targets,
       duration: sample(particle.duration),
       easing: particle.easing ?? "linear",
       update: renderParticle,
-      ...dist,
+      ...setParticleMovement(particle),
     });
   });
   timeLine.play();
