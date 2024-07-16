@@ -21,31 +21,38 @@ const preProcess = (
   const shapes: BaseEntity[] = [];
   for (let i = 0; i < num; i++) {
     const color = particle.colors[anime.random(0, particle.colors.length - 1)];
-    let p: BaseEntity;
-    if (shapeType === Circle) {
-      p = new shapeType(
-        ctx,
-        x,
-        y,
-        color,
-        sample(radius),
-        sample(alpha) / 100,
-        sample(lineWidth)
-      );
-    } else {
-      p = new shapeType(
-        ctx,
-        x,
-        y,
-        color,
-        sample(radius),
-        sample(alpha) / 100,
-        shapeType === Star
-          ? sample((particle.shapeOptions as StarOptions).spikes)
-          : sample((particle.shapeOptions as PolygonOptions).sides),
-        sample(lineWidth)
-      );
-    }
+    const commonArgs: [
+      CanvasRenderingContext2D,
+      number,
+      number,
+      string,
+      number,
+      number
+    ] = [ctx, x, y, color, sample(radius), sample(alpha) / 100];
+    const shapeArgs:
+      | [CanvasRenderingContext2D, number, number, string, number, number]
+      | [
+          CanvasRenderingContext2D,
+          number,
+          number,
+          string,
+          number,
+          number,
+          number
+        ] =
+      shapeType === Circle
+        ? commonArgs
+        : [
+            ...commonArgs,
+            sample(
+              shapeType === Star
+                ? (particle.shapeOptions as StarOptions).spikes
+                : (particle.shapeOptions as PolygonOptions).sides
+            ),
+          ];
+    // @ts-expect-error
+    const p = new shapeType(...shapeArgs, sample(lineWidth));
+
     setEndPos(p, particle);
     setEndRotation(p, particle);
     shapes.push(p);
@@ -58,24 +65,18 @@ export const createCircle = (
   x: number,
   y: number,
   particle: ParticleOptions
-): Circle[] => {
-  return preProcess(ctx, x, y, particle, Circle) as Circle[];
-};
+): Circle[] => preProcess(ctx, x, y, particle, Circle) as Circle[];
 
 export const createStar = (
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   particle: ParticleOptions
-): Star[] => {
-  return preProcess(ctx, x, y, particle, Star) as Star[];
-};
+): Star[] => preProcess(ctx, x, y, particle, Star) as Star[];
 
 export const createPolygon = (
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   particle: ParticleOptions
-): Polygon[] => {
-  return preProcess(ctx, x, y, particle, Polygon) as Polygon[];
-};
+): Polygon[] => preProcess(ctx, x, y, particle, Polygon) as Polygon[];

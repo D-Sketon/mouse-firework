@@ -18,7 +18,7 @@ export const hasAncestor = (node: Element, name: string): boolean => {
 
 export const setEndPos = (p: BaseEntity, particle: ParticleOptions) => {
   if (particle.move.includes("emit")) {
-    let { emitRadius = [50, 180] } =
+    const { emitRadius = [50, 180] } =
       (particle.moveOptions as EmitOptions) ?? {};
     const angle = (anime.random(0, 360) * Math.PI) / 180;
     const radius = [-1, 1][anime.random(0, 1)] * sample(emitRadius);
