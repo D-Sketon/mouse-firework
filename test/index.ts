@@ -24,7 +24,7 @@ describe("firework", () => {
   const mockCanvas = {
     fillRect: () => {},
     clearRect: () => {},
-    getImageData: (x, y, w, h) => ({
+    getImageData: (x: any, y: any, w: number, h: number) => ({
       data: new Array(w * h * 4),
     }),
     putImageData: () => {},

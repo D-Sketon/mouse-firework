@@ -2,11 +2,11 @@ import type { EasingFunctions } from "../types";
 
 export default (): EasingFunctions => {
   // Based on jQuery UI's implementation of easing equations from Robert Penner (http://www.robertpenner.com/easing)
-  const eases = {
+  const eases: Record<string, () => (t: number) => number> = {
     linear: () => (t: number) => t,
   };
 
-  const functionEasings = {
+  const functionEasings: Record<string, () => (t: number) => number> = {
     Sine: () => (t: number) => 1 - Math.cos((t * Math.PI) / 2),
     Expo: () => (t: number) => (t ? Math.pow(2, 10 * t - 10) : 0),
     Circ: () => (t: number) => 1 - Math.sqrt(1 - t * t),

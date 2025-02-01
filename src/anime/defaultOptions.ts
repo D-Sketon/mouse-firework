@@ -1,8 +1,8 @@
 import type { AnimeOptions } from "./types";
 
 export const defaultOptions: AnimeOptions = {
-  targets: null,
+  targets: undefined,
   duration: Infinity,
   easing: "linear",
-  update: null, // 更新回调
+  update: undefined, // 更新回调
 };

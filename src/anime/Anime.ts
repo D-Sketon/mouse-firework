@@ -10,28 +10,19 @@ import type {
 } from "./types";
 
 export default class Anime {
-  targets: object | object[];
+  targets?: Record<string, any> | Record<string, any>[];
   duration: number;
   easing: EasingTypes;
-  update?: (targets: object[]) => void;
+  update?: (targets: Record<string, any>[]) => void;
   dest: Record<
     string,
-    | ((...args: any[]) => string | number)
-    | BasicProp
-    | FromToProp
-    | NestProp
+    ((...args: any[]) => string | number) | BasicProp | FromToProp | NestProp
   >;
-  tl: Timeline;
+  tl: Timeline | null;
   isPlay: boolean;
-  constructor(options: AnimeOptions = defaultOptions) {
+  constructor(options: Partial<AnimeOptions> = defaultOptions) {
     options = { ...defaultOptions, ...options };
-    const {
-      targets,
-      duration,
-      easing,
-      update,
-      ...dest
-    } = options;
+    const { targets, duration, easing, update, ...dest } = options as AnimeOptions;
     this.targets = targets;
     this.duration = duration;
     this.easing = easing;

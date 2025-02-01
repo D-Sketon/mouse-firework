@@ -6,7 +6,13 @@ import Circle from "./entity/Circle";
 import Polygon from "./entity/Polygon";
 import Star from "./entity/Star";
 import { ParticleOptions, StarOptions, PolygonOptions } from "./types";
-import { formatAlpha, sample, setEndPos, setEndRotation } from "./utils";
+import { formatAlpha, sample } from "./utils";
+
+const ENTITY_MAP = {
+  circle: Circle,
+  polygon: Polygon,
+  star: Star,
+}
 
 const preProcess = (
   ctx: CanvasRenderingContext2D,
@@ -53,30 +59,17 @@ const preProcess = (
     // @ts-expect-error
     const p = new shapeType(...shapeArgs, sample(lineWidth));
 
-    setEndPos(p, particle);
-    setEndRotation(p, particle);
     shapes.push(p);
   }
   return shapes;
 };
 
-export const createCircle = (
+export const entityFactory = (
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   particle: ParticleOptions
-): Circle[] => preProcess(ctx, x, y, particle, Circle) as Circle[];
-
-export const createStar = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  particle: ParticleOptions
-): Star[] => preProcess(ctx, x, y, particle, Star) as Star[];
-
-export const createPolygon = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  particle: ParticleOptions
-): Polygon[] => preProcess(ctx, x, y, particle, Polygon) as Polygon[];
+): BaseEntity[] => {
+  const { shape } = particle;
+  return preProcess(ctx, x, y, particle, ENTITY_MAP[shape]);
+};

@@ -3,12 +3,13 @@ import anime from "theme-shokax-anime";
 import type {
   DiffuseOptions,
   EmitOptions,
+  RotateOptions,
   FireworkOptions,
   ParticleOptions,
 } from "./types";
 import { formatAlpha, hasAncestor, sample } from "./utils";
 import BaseEntity from "./entity/BaseEntity";
-import { createCircle, createStar, createPolygon } from "./factory";
+import { entityFactory } from "./factory";
 
 const canvasEl = document.createElement("canvas");
 canvasEl.style.cssText =
@@ -23,6 +24,7 @@ let pointerX = 0;
 let pointerY = 0;
 
 const setCanvasSize = (): void => {
+  if (!ctx) return;
   const { clientWidth: width, clientHeight: height } = document.documentElement;
   canvasEl.width = width * 2;
   canvasEl.height = height * 2;
@@ -41,50 +43,67 @@ const updateCoords = (e: MouseEvent | TouchEvent): void => {
     ((e as TouchEvent).touches && (e as TouchEvent).touches[0].clientY);
 };
 
-const setParticleMovement = (particle: ParticleOptions) => {
-  const { move, moveOptions } = particle;
+const setParticleMovement = (
+  particle: ParticleOptions,
+  x: number,
+  y: number
+) => {
+  let { move, moveOptions } = particle;
+  if (!Array.isArray(move)) {
+    move = [move];
+  }
+  if (!moveOptions) moveOptions = [];
+  if (!Array.isArray(moveOptions)) {
+    moveOptions = [moveOptions];
+  }
   let dist: Record<string, any> = {};
-  if (move.includes("emit")) {
-    const {
-      radius = 0.1,
-      alphaChange = false,
-      alphaEasing = "linear",
-      alphaDuration = [600, 800],
-      alpha = 0,
-    } = (moveOptions as EmitOptions) ?? {};
-    dist = {
-      x: (p: BaseEntity) => p.endPos.x,
-      y: (p: BaseEntity) => p.endPos.y,
-      radius: sample(radius),
-    };
-    if (alphaChange) {
-      dist.alpha = {
-        value: sample(formatAlpha(alpha)) / 100,
-        easing: alphaEasing,
-        duration: sample(alphaDuration),
+  move.forEach((m, i) => {
+    if (m === "emit") {
+      const {
+        emitRadius = [50, 180],
+        radius = 0.1,
+        alphaChange = false,
+        alphaEasing = "linear",
+        alphaDuration = [600, 800],
+        alpha = 0,
+      } = (moveOptions[i] as EmitOptions) ?? {};
+      const emitAngle = (anime.random(0, 360) * Math.PI) / 180;
+      const sampledEmitRadius =
+        [-1, 1][anime.random(0, 1)] * sample(emitRadius);
+      dist = {
+        x: () => x + sampledEmitRadius * Math.cos(emitAngle),
+        y: () => y + sampledEmitRadius * Math.sin(emitAngle),
+        radius: sample(radius),
       };
+      if (alphaChange) {
+        dist.alpha = {
+          value: sample(formatAlpha(alpha)) / 100,
+          easing: alphaEasing,
+          duration: sample(alphaDuration),
+        };
+      }
+    } else if (m === "diffuse") {
+      const {
+        diffuseRadius = [80, 160],
+        lineWidth = 0,
+        alphaEasing = "linear",
+        alphaDuration = [600, 800],
+        alpha = 0,
+      } = (moveOptions[i] as DiffuseOptions) ?? {};
+      dist = {
+        radius: sample(diffuseRadius),
+        lineWidth: sample(lineWidth),
+        alpha: {
+          value: sample(formatAlpha(alpha)) / 100,
+          easing: alphaEasing,
+          duration: sample(alphaDuration),
+        },
+      };
+    } else if (m === "rotate") {
+      const { angle = [-180, 180] } = (moveOptions[i] as RotateOptions) ?? {};
+      dist.rotation = () => sample(angle);
     }
-  } else if (move.includes("diffuse")) {
-    const {
-      diffuseRadius = [80, 160],
-      lineWidth = 0,
-      alphaEasing = "linear",
-      alphaDuration = [600, 800],
-      alpha = 0,
-    } = (moveOptions as DiffuseOptions) ?? {};
-    dist = {
-      radius: sample(diffuseRadius),
-      lineWidth: sample(lineWidth),
-      alpha: {
-        value: sample(formatAlpha(alpha)) / 100,
-        easing: alphaEasing,
-        duration: sample(alphaDuration),
-      },
-    };
-  }
-  if (move.includes("rotate")) {
-    dist.rotation = (p: BaseEntity) => p.endRotation;
-  }
+  });
   return dist;
 };
 
@@ -94,15 +113,16 @@ const renderParticle = (targets: BaseEntity[]): void => {
   }
 };
 
-const render = anime({
+const clearRenderer = anime({
   duration: Infinity,
   update() {
+    if (!ctx) return;
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
   },
 });
 
-let currentCallback = null;
-let globalOptions: FireworkOptions = null;
+let currentCallback: ((e: MouseEvent | TouchEvent) => void) | null = null;
+let globalOptions: FireworkOptions | null = null;
 
 const initFireworks = (options: FireworkOptions) => {
   globalOptions = options;
@@ -117,7 +137,7 @@ const initFireworks = (options: FireworkOptions) => {
     ) {
       return;
     }
-    render.play();
+    clearRenderer.play();
     updateCoords(e);
     animateParticles(pointerX, pointerY);
   };
@@ -128,27 +148,16 @@ const initFireworks = (options: FireworkOptions) => {
 };
 
 const animateParticles = (x: number, y: number): void => {
-  if (!globalOptions) return;
+  if (!globalOptions || !ctx) return;
   const { particles } = globalOptions;
   const timeLine = anime().timeline();
   particles.forEach((particle) => {
-    let targets = [];
-    switch (particle.shape) {
-      case "circle":
-        targets = createCircle(ctx, x, y, particle);
-        break;
-      case "star":
-        targets = createStar(ctx, x, y, particle);
-        break;
-      case "polygon":
-        targets = createPolygon(ctx, x, y, particle);
-    }
     timeLine.add({
-      targets,
+      targets: entityFactory(ctx, x, y, particle),
       duration: sample(particle.duration),
       easing: particle.easing ?? "linear",
-      update: renderParticle,
-      ...setParticleMovement(particle),
+      update: renderParticle as any,
+      ...setParticleMovement(particle, x, y),
     });
   });
   timeLine.play();

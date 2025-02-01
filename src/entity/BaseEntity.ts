@@ -1,5 +1,3 @@
-import { PointType } from "../types";
-
 export default abstract class BaseEntity {
   ctx: CanvasRenderingContext2D;
   x: number;
@@ -7,8 +5,6 @@ export default abstract class BaseEntity {
   rotation: number;
   color: string;
   radius: number;
-  endPos: PointType;
-  endRotation: number;
   alpha: number;
   lineWidth?: number;
 

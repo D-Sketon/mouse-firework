@@ -1,8 +1,8 @@
 export interface AnimeOptions {
-  targets?: object | object[];
-  duration?: number;
-  easing?: EasingTypes;
-  update?: (targets: object[]) => void;
+  targets?: Record<string, any> | Record<string, any>[];
+  duration: number;
+  easing: EasingTypes;
+  update?: (targets: Record<string, any>[]) => void;
   [index: string]:
     | ((...args: any[]) => string | number)
     | BasicProp

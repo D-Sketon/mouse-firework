@@ -8,7 +8,7 @@ export default (anime: Anime) => {
   const end = start + anime.duration;
   // target是否有效
   const isValid = !!anime.targets;
-  const cloneTargets: Record<string, number | string>[] = [];
+  const cloneTargets: Record<string | number, number | string>[] = [];
 
   // 初始化cloneTargets
   const initTarget = () => {
@@ -17,7 +17,7 @@ export default (anime: Anime) => {
     if (!Array.isArray(anime.targets)) {
       anime.targets = [anime.targets];
     }
-    for (const target of anime.targets as object[]) {
+    for (const target of anime.targets as Record<string, any>[]) {
       const cloneTarget: Record<string, number | string> = {};
       for (const propKey in anime.dest) {
         // 不支持from-to模式
@@ -30,7 +30,7 @@ export default (anime: Anime) => {
 
   // 改变target单个key的属性
   const change = (
-    target: object,
+    target: Record<string, number | string>,
     origin: number,
     elapsed: number,
     value: number,
@@ -42,10 +42,10 @@ export default (anime: Anime) => {
 
   // 改变target所有的属性
   const changeAll = (elapsed: number, current: number, final = false) => {
-    (anime.targets as object[]).forEach(
-      (target: object, index: string | number) => {
+    (anime.targets as Record<string, number | string>[]).forEach(
+      (target: Record<string, number | string>, index: number) => {
         Object.keys(anime.dest).forEach((key) => {
-          const origin = parseFloat(cloneTargets[index][key]);
+          const origin = parseFloat(cloneTargets[index][key] as string);
           let dest = anime.dest[key];
           // 对象类型
           if (typeof dest === "object") {
