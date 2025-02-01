@@ -55,8 +55,8 @@ export default (anime: Anime) => {
               // 不支持keyframe模式
               // 支持nest模式 {value: 1, duration: 500, easing: 'linear'}
               const { value, duration, easing = anime.easing } = dest;
+              const elapsed = pennerFn[easing]()((current - start) / duration);
               if (current <= start + duration) {
-                elapsed = pennerFn[easing]()((current - start) / duration);
                 change(target, origin, elapsed, value, key);
               } else if (final) {
                 change(target, origin, elapsed, value, key, final);
