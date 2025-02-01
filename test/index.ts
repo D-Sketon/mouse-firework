@@ -59,6 +59,14 @@ describe("firework", () => {
 
   window.HTMLCanvasElement.prototype.toDataURL = () => "";
 
+  beforeEach(() => {
+    mockCanvas.rotate = () => {};
+    mockCanvas.translate = () => {};
+    mockCanvas.arc = () => {};
+    mockCanvas.stroke = () => {};
+    mockCanvas.fill = () => {};
+  });
+
   it("base call raf", async () => {
     const spy = sinon.spy();
     global.requestAnimationFrame = spy;
@@ -162,7 +170,11 @@ describe("firework", () => {
     global.requestAnimationFrame = () => 0;
     mockCanvas.translate = translateSpy;
     mockCanvas.rotate = rotateSpy;
-    mockCanvas.fill = fillSpy;
+    mockCanvas.fill = () => {
+      fillSpy();
+      mockCanvas.globalAlpha.should.greaterThan(0.5);
+      mockCanvas.globalAlpha.should.lessThan(0.8);
+    };
     const { default: firework } = await import("../src/index");
     firework({
       excludeElements: [],
@@ -175,6 +187,7 @@ describe("firework", () => {
           duration: 1000,
           shapeOptions: {
             radius: 10,
+            alpha: [0.5, 0.8],
           },
         },
       ],
