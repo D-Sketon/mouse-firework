@@ -17,10 +17,10 @@ export const hasAncestor = (node: Element, name: string): boolean => {
 };
 
 export const setEndPos = (p: BaseEntity, particle: ParticleOptions) => {
-  let index;
-  if ((index = particle.move.indexOf("emit")) !== -1) {
+  const index = particle.move.indexOf("emit");
+  if (index >= 0) {
     const { emitRadius = [50, 180] } =
-      (particle.moveOptions as EmitOptions[])[index] ?? {};
+      (particle.moveOptions as EmitOptions[])[index] || {};
     const angle = (anime.random(0, 360) * Math.PI) / 180;
     const radius = [-1, 1][anime.random(0, 1)] * sample(emitRadius);
     p.endPos = {
@@ -31,10 +31,10 @@ export const setEndPos = (p: BaseEntity, particle: ParticleOptions) => {
 };
 
 export const setEndRotation = (p: BaseEntity, particle: ParticleOptions) => {
-  let index;
-  if ((index = particle.move.indexOf("rotate")) !== -1) {
+  const index = particle.move.indexOf("rotate");
+  if (index >= 0) {
     const { angle = [-180, 180] } =
-      (particle.moveOptions as RotateOptions[])[index] ?? {};
+      (particle.moveOptions as RotateOptions[])[index] || {};
     p.endRotation = sample(angle);
   }
 };

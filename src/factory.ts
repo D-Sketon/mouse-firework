@@ -12,59 +12,6 @@ const ENTITY_MAP = {
   circle: Circle,
   polygon: Polygon,
   star: Star,
-}
-
-const preProcess = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  particle: ParticleOptions,
-  shapeType: typeof Circle | typeof Polygon | typeof Star
-) => {
-  const num = sample(particle.number);
-  let { radius, alpha = 1, lineWidth } = particle.shapeOptions;
-  alpha = formatAlpha(alpha);
-  const shapes: BaseEntity[] = [];
-  for (let i = 0; i < num; i++) {
-    const color = particle.colors[anime.random(0, particle.colors.length - 1)];
-    const commonArgs: [
-      CanvasRenderingContext2D,
-      number,
-      number,
-      string,
-      number,
-      number
-    ] = [ctx, x, y, color, sample(radius), sample(alpha) / 100];
-    const shapeArgs:
-      | [CanvasRenderingContext2D, number, number, string, number, number]
-      | [
-          CanvasRenderingContext2D,
-          number,
-          number,
-          string,
-          number,
-          number,
-          number
-        ] =
-      shapeType === Circle
-        ? commonArgs
-        : [
-            ...commonArgs,
-            sample(
-              shapeType === Star
-                ? (particle.shapeOptions as StarOptions).spikes
-                : (particle.shapeOptions as PolygonOptions).sides
-            ),
-          ];
-    // @ts-expect-error
-    const p = new shapeType(...shapeArgs, sample(lineWidth));
-
-    setEndPos(p, particle);
-    setEndRotation(p, particle);
-
-    shapes.push(p);
-  }
-  return shapes;
 };
 
 export const entityFactory = (
@@ -73,6 +20,31 @@ export const entityFactory = (
   y: number,
   particle: ParticleOptions
 ): BaseEntity[] => {
-  const { shape } = particle;
-  return preProcess(ctx, x, y, particle, ENTITY_MAP[shape]);
+  const shapeType = ENTITY_MAP[particle.shape];
+  const { shapeOptions, colors, number } = particle;
+  let { radius, alpha = 1, lineWidth } = shapeOptions;
+  alpha = formatAlpha(alpha);
+  return Array.from({ length: sample(number) }, () => {
+    const color = colors[anime.random(0, colors.length - 1)];
+    const shapeArgs: [
+      CanvasRenderingContext2D,
+      number,
+      number,
+      string,
+      number,
+      number
+    ] = [ctx, x, y, color, sample(radius), sample(alpha) / 100];
+    if (shapeType === Star) {
+      shapeArgs.push(sample((shapeOptions as StarOptions).spikes));
+    } else if (shapeType === Polygon) {
+      shapeArgs.push(sample((shapeOptions as PolygonOptions).sides));
+    }
+ 
+    const shape = new shapeType(...shapeArgs, sample(lineWidth!));
+
+    setEndPos(shape, particle);
+    setEndRotation(shape, particle);
+
+    return shape;
+  });
 };

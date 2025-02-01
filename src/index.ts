@@ -3,7 +3,6 @@ import anime from "theme-shokax-anime";
 import type {
   DiffuseOptions,
   EmitOptions,
-  RotateOptions,
   FireworkOptions,
   ParticleOptions,
   Move,
@@ -46,13 +45,11 @@ const updateCoords = (e: MouseEvent | TouchEvent): void => {
 };
 
 const setParticleMovement = (
-  particle: ParticleOptions,
-  x: number,
-  y: number
+  particle: ParticleOptions
 ) => {
   const { move, moveOptions } = particle as {
-    move: Move[],
-    moveOptions: MoveOptions[],
+    move: Move[];
+    moveOptions: MoveOptions[];
   };
   let dist: Record<string, any> = {};
   move.forEach((m, i) => {
@@ -63,7 +60,7 @@ const setParticleMovement = (
         alphaEasing = "linear",
         alphaDuration = [600, 800],
         alpha = 0,
-      } = (moveOptions[i] as EmitOptions) ?? {};
+      } = (moveOptions[i] as EmitOptions) || {};
       dist = {
         x: (p: BaseEntity) => p.endPos!.x,
         y: (p: BaseEntity) => p.endPos!.y,
@@ -83,7 +80,7 @@ const setParticleMovement = (
         alphaEasing = "linear",
         alphaDuration = [600, 800],
         alpha = 0,
-      } = (moveOptions[i] as DiffuseOptions) ?? {};
+      } = (moveOptions[i] as DiffuseOptions) || {};
       dist = {
         radius: sample(diffuseRadius),
         lineWidth: sample(lineWidth),
@@ -145,19 +142,19 @@ const animateParticles = (x: number, y: number): void => {
   const { particles } = globalOptions;
   const timeLine = anime().timeline();
   particles.forEach((particle) => {
-    if (!Array.isArray(particle.move)) {
-      particle.move = [particle.move];
-    }
-    if (!particle.moveOptions) particle.moveOptions = [];
-    if (!Array.isArray(particle.moveOptions)) {
-      particle.moveOptions = [particle.moveOptions];
-    }
+    const { move, moveOptions } = particle;
+    particle.move = Array.isArray(move) ? move : [move];
+    particle.moveOptions = moveOptions
+      ? Array.isArray(moveOptions)
+        ? moveOptions
+        : [moveOptions]
+      : [];
     timeLine.add({
       targets: entityFactory(ctx, x, y, particle),
       duration: sample(particle.duration),
-      easing: particle.easing ?? "linear",
+      easing: particle.easing || "linear",
       update: renderParticle as any,
-      ...setParticleMovement(particle, x, y),
+      ...setParticleMovement(particle),
     });
   });
   timeLine.play();
