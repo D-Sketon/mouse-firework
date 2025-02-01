@@ -48,7 +48,7 @@ e.g.
     particles: [
       {
         shape: "circle",
-        move: ["emit"],
+        move: "emit",
         easing: "easeOutExpo",
         colors: [
           "rgba(255,182,185,.9)",
@@ -70,17 +70,20 @@ e.g.
 ## Options
 
 ```ts
+type Move = "emit" | "diffuse" | "rotate";
+type MoveOptions = EmitOptions | DiffuseOptions | RotateOptions;
+
 interface FireworkOptions {
   excludeElements: string[];
   particles: {
     shape: "circle" | "star" | "polygon";
-    move: Array<"emit" | "diffuse" | "rotate">;
+    move: Move | Move[];
     easing?: EasingTypes;
     colors: string[];
     number: number | [number, number];
     duration: number | [number, number];
     shapeOptions: CircleOptions | StarOptions | PolygonOptions;
-    moveOptions?: EmitOptions | DiffuseOptions | RotateOptions;
+    moveOptions?: MoveOptions | MoveOptions[];
   }[];
 }
 
@@ -134,9 +137,9 @@ Specific options of firework particles
 
 Shape of the particles
 
-#### move(`Array<"emit" | "diffuse" | "rotate">`)
+#### move(`Move | Move[]`)
 
-The way the particles move, `emit` indicates random movement from the center in all directions, `diffuse` indicates getting bigger and fading from the center
+The way the particles move, `emit` indicates random movement from the center in all directions, `diffuse` indicates getting bigger and fading from the center, `rotate` indicates rotating around the center
 
 #### easing(`EasingTypes`, default = `"linear"`)
 
@@ -166,7 +169,7 @@ Number of particles, support interval
 
 Duration of the motion of the particle, support interval
 
-#### shapeOptions(`CircleOptions | RingOptions`)
+#### shapeOptions(`CircleOptions | StarOptions | PolygonOptions`)
 
 ##### CircleOptions
 
@@ -198,7 +201,7 @@ Number of star spikes, support interval
 
 Number of polygon sides, support interval
 
-#### moveOptions(optional)
+#### moveOptions(`MoveOptions | MoveOptions[]`, optional)
 
 ##### EmitOptions
 
