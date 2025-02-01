@@ -6,6 +6,8 @@ import type {
   RotateOptions,
   FireworkOptions,
   ParticleOptions,
+  Move,
+  MoveOptions,
 } from "./types";
 import { formatAlpha, hasAncestor, sample } from "./utils";
 import BaseEntity from "./entity/BaseEntity";
@@ -48,31 +50,23 @@ const setParticleMovement = (
   x: number,
   y: number
 ) => {
-  let { move, moveOptions } = particle;
-  if (!Array.isArray(move)) {
-    move = [move];
-  }
-  if (!moveOptions) moveOptions = [];
-  if (!Array.isArray(moveOptions)) {
-    moveOptions = [moveOptions];
-  }
+  const { move, moveOptions } = particle as {
+    move: Move[],
+    moveOptions: MoveOptions[],
+  };
   let dist: Record<string, any> = {};
   move.forEach((m, i) => {
     if (m === "emit") {
       const {
-        emitRadius = [50, 180],
         radius = 0.1,
         alphaChange = false,
         alphaEasing = "linear",
         alphaDuration = [600, 800],
         alpha = 0,
       } = (moveOptions[i] as EmitOptions) ?? {};
-      const emitAngle = (anime.random(0, 360) * Math.PI) / 180;
-      const sampledEmitRadius =
-        [-1, 1][anime.random(0, 1)] * sample(emitRadius);
       dist = {
-        x: () => x + sampledEmitRadius * Math.cos(emitAngle),
-        y: () => y + sampledEmitRadius * Math.sin(emitAngle),
+        x: (p: BaseEntity) => p.endPos!.x,
+        y: (p: BaseEntity) => p.endPos!.y,
         radius: sample(radius),
       };
       if (alphaChange) {
@@ -100,8 +94,7 @@ const setParticleMovement = (
         },
       };
     } else if (m === "rotate") {
-      const { angle = [-180, 180] } = (moveOptions[i] as RotateOptions) ?? {};
-      dist.rotation = () => sample(angle);
+      dist.rotation = (p: BaseEntity) => p.endRotation!;
     }
   });
   return dist;
@@ -152,6 +145,13 @@ const animateParticles = (x: number, y: number): void => {
   const { particles } = globalOptions;
   const timeLine = anime().timeline();
   particles.forEach((particle) => {
+    if (!Array.isArray(particle.move)) {
+      particle.move = [particle.move];
+    }
+    if (!particle.moveOptions) particle.moveOptions = [];
+    if (!Array.isArray(particle.moveOptions)) {
+      particle.moveOptions = [particle.moveOptions];
+    }
     timeLine.add({
       targets: entityFactory(ctx, x, y, particle),
       duration: sample(particle.duration),

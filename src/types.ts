@@ -35,12 +35,12 @@ export type RotateOptions = {
   angle?: number | [number, number]; // default [-180, 180]
 };
 
-type Move = "emit" | "diffuse" | "rotate";
-type moveOptions = EmitOptions | DiffuseOptions | RotateOptions;
+export type Move = "emit" | "diffuse" | "rotate";
+export type MoveOptions = EmitOptions | DiffuseOptions | RotateOptions;
 
-interface BaseParticleOptions {
+export interface BaseParticleOptions {
   move: Move | Move[];
-  moveOptions?: moveOptions | moveOptions[];
+  moveOptions?: MoveOptions | MoveOptions[];
   easing?: EasingTypes;
   colors: string[];
   number: number | [number, number];

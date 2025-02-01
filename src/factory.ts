@@ -6,7 +6,7 @@ import Circle from "./entity/Circle";
 import Polygon from "./entity/Polygon";
 import Star from "./entity/Star";
 import { ParticleOptions, StarOptions, PolygonOptions } from "./types";
-import { formatAlpha, sample } from "./utils";
+import { formatAlpha, sample, setEndPos, setEndRotation } from "./utils";
 
 const ENTITY_MAP = {
   circle: Circle,
@@ -58,6 +58,9 @@ const preProcess = (
           ];
     // @ts-expect-error
     const p = new shapeType(...shapeArgs, sample(lineWidth));
+
+    setEndPos(p, particle);
+    setEndRotation(p, particle);
 
     shapes.push(p);
   }

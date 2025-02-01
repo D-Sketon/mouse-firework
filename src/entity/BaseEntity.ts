@@ -7,6 +7,8 @@ export default abstract class BaseEntity {
   radius: number;
   alpha: number;
   lineWidth?: number;
+  endPos?: { x: number; y: number };
+  endRotation?: number;
 
   constructor(
     ctx: CanvasRenderingContext2D,

@@ -434,7 +434,7 @@ describe("firework", () => {
     const rotateSpy = sinon.spy();
     mockCanvas.rotate = (...args) => {
       rotateSpy(...args);
-      rotateSpy.args[i][0].should.eql(Math.PI / 5 * i);
+      rotateSpy.args[i][0].should.eql((Math.PI / 5) * i);
       i++;
     };
 
@@ -462,6 +462,116 @@ describe("firework", () => {
           moveOptions: {
             angle: 180,
           },
+        },
+      ],
+    });
+    document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait(1200);
+  });
+
+  it("move with string type", async () => {
+    let i = 0;
+    const translateSpy = sinon.spy();
+    const arcSpy = sinon.spy();
+    mockCanvas.rotate = () => {};
+    mockCanvas.translate = translateSpy;
+    mockCanvas.arc = (...args) => {
+      arcSpy(...args);
+      const radius =
+        translateSpy.args[i][0] ** 2 + translateSpy.args[i][1] ** 2;
+      (Math.abs(radius - (i * 2) ** 2) < 1e-10).should.be.true;
+      arcSpy.args[i][2].should.eql(10 - 2 * i);
+      if (i < 3) {
+        mockCanvas.globalAlpha.should.eql(1 - i / 3);
+      }
+      i++;
+    };
+
+    Date.now = () => i * 200;
+    global.requestAnimationFrame = (cb) => {
+      if (i > 5) {
+        global.requestAnimationFrame = () => 0;
+      }
+      setTimeout(cb, 0);
+      return 0;
+    };
+    const { default: firework } = await import("../src/index");
+    firework({
+      excludeElements: ["button"],
+      particles: [
+        {
+          shape: "circle",
+          move: "emit",
+          colors: ["rgba(255,182,185)"],
+          number: 1,
+          duration: 1000,
+          shapeOptions: {
+            radius: 10,
+          },
+          moveOptions: {
+            emitRadius: 10,
+            radius: 0,
+            alphaChange: true,
+            alpha: 0,
+            alphaEasing: "linear",
+            alphaDuration: 600,
+          },
+        },
+      ],
+    });
+    document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait(1200);
+  });
+
+  it("moveOptions with array type", async () => {
+    let i = 0;
+    const translateSpy = sinon.spy();
+    const arcSpy = sinon.spy();
+    mockCanvas.rotate = () => {};
+    mockCanvas.translate = translateSpy;
+    mockCanvas.arc = (...args) => {
+      arcSpy(...args);
+      const radius =
+        translateSpy.args[i][0] ** 2 + translateSpy.args[i][1] ** 2;
+      (Math.abs(radius - (i * 2) ** 2) < 1e-10).should.be.true;
+      arcSpy.args[i][2].should.eql(10 - 2 * i);
+      if (i < 3) {
+        mockCanvas.globalAlpha.should.eql(1 - i / 3);
+      }
+      i++;
+    };
+
+    Date.now = () => i * 200;
+    global.requestAnimationFrame = (cb) => {
+      if (i > 5) {
+        global.requestAnimationFrame = () => 0;
+      }
+      setTimeout(cb, 0);
+      return 0;
+    };
+    const { default: firework } = await import("../src/index");
+    firework({
+      excludeElements: ["button"],
+      particles: [
+        {
+          shape: "circle",
+          move: "emit",
+          colors: ["rgba(255,182,185)"],
+          number: 1,
+          duration: 1000,
+          shapeOptions: {
+            radius: 10,
+          },
+          moveOptions: [
+            {
+              emitRadius: 10,
+              radius: 0,
+              alphaChange: true,
+              alpha: 0,
+              alphaEasing: "linear",
+              alphaDuration: 600,
+            },
+          ],
         },
       ],
     });
