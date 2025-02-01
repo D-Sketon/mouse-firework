@@ -84,7 +84,7 @@ export default (anime: Anime) => {
       anime.isPlay = false;
     } else {
       if (current >= start) {
-        const elapsed = penner()[anime.easing]()(
+        const elapsed = pennerFn[anime.easing]()(
           (current - start) / anime.duration
         );
         isValid && changeAll(elapsed, current);
