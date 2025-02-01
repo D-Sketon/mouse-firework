@@ -1,6 +1,8 @@
 import type Anime from "../Anime";
 import penner from "./penner";
 
+const pennerFn = penner();
+
 export default (anime: Anime) => {
   // 动画开始时间
   const start = Date.now();
@@ -54,7 +56,7 @@ export default (anime: Anime) => {
               // 支持nest模式 {value: 1, duration: 500, easing: 'linear'}
               const { value, duration, easing = anime.easing } = dest;
               if (current <= start + duration) {
-                elapsed = penner()[easing]()((current - start) / duration);
+                elapsed = pennerFn[easing]()((current - start) / duration);
                 change(target, origin, elapsed, value, key);
               } else if (final) {
                 change(target, origin, elapsed, value, key, final);
