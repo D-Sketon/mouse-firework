@@ -1,11 +1,14 @@
 {
   "name": "mouse-firework",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fireworks effects appear when you click the mouse",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "browser": "dist/index.umd.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rollup -c",
     "build:umd": "rollup -c umd.config.mjs",
