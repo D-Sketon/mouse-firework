@@ -1,7 +1,5 @@
-import chai from "chai";
-const should = chai.should();
 import { JSDOM } from "jsdom";
-import sinon from "sinon";
+import { describe, it, beforeEach, vi, expect } from "vitest";
 
 const wait = async (time = 0): Promise<void> => {
   return new Promise((resolve) => {
@@ -68,7 +66,7 @@ describe("firework", () => {
   });
 
   it("base call raf", async () => {
-    const spy = sinon.spy();
+    const spy = vi.fn();
     global.requestAnimationFrame = spy;
     const { default: firework } = await import("../src/index");
     firework({
@@ -88,11 +86,11 @@ describe("firework", () => {
     });
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
-    spy.called.should.be.true;
+    expect(spy).toHaveBeenCalled();
   });
 
   it("excludeElements", async () => {
-    const spy = sinon.spy();
+    const spy = vi.fn();
     global.requestAnimationFrame = spy;
     const { default: firework } = await import("../src/index");
     firework({
@@ -115,15 +113,15 @@ describe("firework", () => {
       .getElementById("test")!
       .dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
-    spy.called.should.be.false;
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it("stroke shape - base entity", async () => {
-    const translateSpy = sinon.spy();
-    const rotateSpy = sinon.spy();
-    const strokeSpy = sinon.spy();
+    const translateSpy = vi.fn();
+    const rotateSpy = vi.fn();
+    const strokeSpy = vi.fn();
     const arcSpy = () => {
-      mockCanvas.globalAlpha.should.eql(0.5);
+      expect(mockCanvas.globalAlpha).toBe(0.5);
     };
     global.requestAnimationFrame = () => 0;
     mockCanvas.translate = translateSpy;
@@ -152,11 +150,11 @@ describe("firework", () => {
       new window.MouseEvent("click", { bubbles: true, clientX: 0, clientY: 0 })
     );
     await wait();
-    translateSpy.args[0].should.eql([0, 0]);
-    rotateSpy.args[0].should.eql([0]);
-    strokeSpy.called.should.be.true;
-    mockCanvas.lineWidth.should.eql(2);
-    mockCanvas.strokeStyle.should.eql("rgba(255,182,185)");
+    expect(translateSpy).toHaveBeenCalledWith(0, 0);
+    expect(rotateSpy).toHaveBeenCalledWith(0);
+    expect(strokeSpy).toHaveBeenCalled();
+    expect(mockCanvas.lineWidth).toBe(2);
+    expect(mockCanvas.strokeStyle).toBe("rgba(255,182,185)");
 
     mockCanvas.lineWidth = 0;
     mockCanvas.strokeStyle = "";
@@ -164,16 +162,16 @@ describe("firework", () => {
   });
 
   it("fill shape - base entity", async () => {
-    const translateSpy = sinon.spy();
-    const rotateSpy = sinon.spy();
-    const fillSpy = sinon.spy();
+    const translateSpy = vi.fn();
+    const rotateSpy = vi.fn();
+    const fillSpy = vi.fn();
     global.requestAnimationFrame = () => 0;
     mockCanvas.translate = translateSpy;
     mockCanvas.rotate = rotateSpy;
     mockCanvas.fill = () => {
       fillSpy();
-      mockCanvas.globalAlpha.should.greaterThan(0.5);
-      mockCanvas.globalAlpha.should.lessThan(0.8);
+      expect(mockCanvas.globalAlpha).toBeGreaterThan(0.5);
+      expect(mockCanvas.globalAlpha).toBeLessThan(0.8);
     };
     const { default: firework } = await import("../src/index");
     firework({
@@ -196,18 +194,18 @@ describe("firework", () => {
       new window.MouseEvent("click", { bubbles: true, clientX: 0, clientY: 0 })
     );
     await wait();
-    translateSpy.args[0].should.eql([0, 0]);
-    rotateSpy.args[0].should.eql([0]);
-    fillSpy.called.should.be.true;
+    expect(translateSpy).toHaveBeenCalledWith(0, 0);
+    expect(rotateSpy).toHaveBeenCalledWith(0);
+    expect(fillSpy).toHaveBeenCalled();
 
-    mockCanvas.fillStyle.should.eql("rgba(255,182,185)");
+    expect(mockCanvas.fillStyle).toBe("rgba(255,182,185)");
     mockCanvas.fillStyle = "";
   });
 
   it("shape - circle", async () => {
-    const beginPathSpy = sinon.spy();
-    const arcSpy = sinon.spy();
-    const closePathSpy = sinon.spy();
+    const beginPathSpy = vi.fn();
+    const arcSpy = vi.fn();
+    const closePathSpy = vi.fn();
     global.requestAnimationFrame = () => 0;
     mockCanvas.beginPath = beginPathSpy;
     mockCanvas.arc = arcSpy;
@@ -231,16 +229,16 @@ describe("firework", () => {
 
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
-    beginPathSpy.called.should.be.true;
-    arcSpy.args[0].should.eql([0, 0, 10, 0, 2 * Math.PI]);
-    closePathSpy.called.should.be.true;
+    expect(beginPathSpy).toHaveBeenCalled();
+    expect(arcSpy).toHaveBeenCalledWith(0, 0, 10, 0, 2 * Math.PI);
+    expect(closePathSpy).toHaveBeenCalled();
   });
 
   it("shape - star", async () => {
-    const beginPathSpy = sinon.spy();
-    const moveToSpy = sinon.spy();
-    const lineToSpy = sinon.spy();
-    const closePathSpy = sinon.spy();
+    const beginPathSpy = vi.fn();
+    const moveToSpy = vi.fn();
+    const lineToSpy = vi.fn();
+    const closePathSpy = vi.fn();
     global.requestAnimationFrame = () => 0;
     mockCanvas.beginPath = beginPathSpy;
     mockCanvas.moveTo = moveToSpy;
@@ -266,34 +264,34 @@ describe("firework", () => {
 
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
-    beginPathSpy.called.should.be.true;
-    moveToSpy.args[0].should.eql([0, -10]);
-    lineToSpy.callCount.should.eql(8);
+    expect(beginPathSpy).toHaveBeenCalled();
+    expect(moveToSpy).toHaveBeenCalledWith(0, -10);
+    expect(lineToSpy).toHaveBeenCalledTimes(8);
     const baseSize = (5 * Math.sqrt(2)) / 2;
-    (Math.abs(lineToSpy.args[0][0] - 0) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[0][1] + 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[1][0] - baseSize) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[1][1] + baseSize) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[2][0] - 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[2][1] + 0) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[3][0] - baseSize) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[3][1] - baseSize) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[4][0] + 0) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[4][1] - 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[5][0] + baseSize) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[5][1] - baseSize) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[6][0] + 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[6][1] - 0) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[7][0] + baseSize) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[7][1] + baseSize) < 1e-10).should.be.true;
-    closePathSpy.called.should.be.true;
+    expect(Math.abs(lineToSpy.mock.calls[0][0] - 0)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[0][1] + 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[1][0] - baseSize)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[1][1] + baseSize)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[2][0] - 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[2][1] + 0)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[3][0] - baseSize)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[3][1] - baseSize)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[4][0] + 0)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[4][1] - 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[5][0] + baseSize)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[5][1] - baseSize)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[6][0] + 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[6][1] - 0)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[7][0] + baseSize)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[7][1] + baseSize)).toBeLessThan(1e-10);
+    expect(closePathSpy).toHaveBeenCalled();
   });
 
   it("shape - polygon", async () => {
-    const beginPathSpy = sinon.spy();
-    const moveToSpy = sinon.spy();
-    const lineToSpy = sinon.spy();
-    const closePathSpy = sinon.spy();
+    const beginPathSpy = vi.fn();
+    const moveToSpy = vi.fn();
+    const lineToSpy = vi.fn();
+    const closePathSpy = vi.fn();
     global.requestAnimationFrame = () => 0;
     mockCanvas.beginPath = beginPathSpy;
     mockCanvas.moveTo = moveToSpy;
@@ -319,33 +317,33 @@ describe("firework", () => {
 
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
-    beginPathSpy.called.should.be.true;
-    moveToSpy.args[0].should.eql([10, 0]);
-    lineToSpy.callCount.should.eql(4);
-    (Math.abs(lineToSpy.args[0][0] - 0) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[0][1] - 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[1][0] + 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[1][1] + 0) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[2][0] + 0) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[2][1] + 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[3][0] - 10) < 1e-10).should.be.true;
-    (Math.abs(lineToSpy.args[3][1] + 0) < 1e-10).should.be.true;
-    closePathSpy.called.should.be.true;
+    expect(beginPathSpy).toHaveBeenCalled();
+    expect(moveToSpy).toHaveBeenCalledWith(10, 0);
+    expect(lineToSpy).toHaveBeenCalledTimes(4);
+    expect(Math.abs(lineToSpy.mock.calls[0][0] - 0)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[0][1] - 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[1][0] + 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[1][1] + 0)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[2][0] + 0)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[2][1] + 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[3][0] - 10)).toBeLessThan(1e-10);
+    expect(Math.abs(lineToSpy.mock.calls[3][1] + 0)).toBeLessThan(1e-10);
+    expect(closePathSpy).toHaveBeenCalled();
   });
 
   it("emit", async () => {
     let i = 0;
-    const translateSpy = sinon.spy();
-    const arcSpy = sinon.spy();
+    const translateSpy = vi.fn();
+    const arcSpy = vi.fn();
     mockCanvas.translate = translateSpy;
     mockCanvas.arc = (...args) => {
       arcSpy(...args);
       const radius =
-        translateSpy.args[i][0] ** 2 + translateSpy.args[i][1] ** 2;
-      (Math.abs(radius - (i * 2) ** 2) < 1e-10).should.be.true;
-      arcSpy.args[i][2].should.eql(10 - 2 * i);
+        translateSpy.mock.calls[i][0] ** 2 + translateSpy.mock.calls[i][1] ** 2;
+      expect(Math.abs(radius - (i * 2) ** 2)).toBeLessThan(1e-10);
+      expect(arcSpy.mock.calls[i][2]).toBe(10 - 2 * i);
       if (i < 3) {
-        mockCanvas.globalAlpha.should.eql(1 - i / 3);
+        expect(mockCanvas.globalAlpha).toBe(1 - i / 3);
       }
       i++;
     };
@@ -388,21 +386,21 @@ describe("firework", () => {
 
   it("diffuse", async () => {
     let i = 0;
-    const translateSpy = sinon.spy();
-    const arcSpy = sinon.spy();
-    const strokeSpy = sinon.spy();
+    const translateSpy = vi.fn();
+    const arcSpy = vi.fn();
+    const strokeSpy = vi.fn();
     mockCanvas.translate = translateSpy;
     mockCanvas.arc = (...args) => {
       arcSpy(...args);
-      translateSpy.args[i].should.eql([0, 0]);
-      arcSpy.args[i][2].should.eql(10 + 2 * i);
+      expect(translateSpy).toHaveBeenCalledWith(0, 0);
+      expect(arcSpy.mock.calls[i][2]).toBe(10 + 2 * i);
       if (i < 3) {
-        mockCanvas.globalAlpha.should.eql(1 - i / 3);
+        expect(mockCanvas.globalAlpha).toBe(1 - i / 3);
       }
     };
     mockCanvas.stroke = (...args) => {
       strokeSpy(...args);
-      mockCanvas.lineWidth.should.eql(5 - i);
+      expect(mockCanvas.lineWidth).toBe(5 - i);
       i++;
     };
 
@@ -444,10 +442,10 @@ describe("firework", () => {
 
   it("rotate", async () => {
     let i = 0;
-    const rotateSpy = sinon.spy();
+    const rotateSpy = vi.fn();
     mockCanvas.rotate = (...args) => {
       rotateSpy(...args);
-      rotateSpy.args[i][0].should.eql((Math.PI / 5) * i);
+      expect(rotateSpy).toHaveBeenCalledWith((Math.PI / 5) * i);
       i++;
     };
 
@@ -484,18 +482,18 @@ describe("firework", () => {
 
   it("move with string type", async () => {
     let i = 0;
-    const translateSpy = sinon.spy();
-    const arcSpy = sinon.spy();
+    const translateSpy = vi.fn();
+    const arcSpy = vi.fn();
     mockCanvas.rotate = () => {};
     mockCanvas.translate = translateSpy;
     mockCanvas.arc = (...args) => {
       arcSpy(...args);
       const radius =
-        translateSpy.args[i][0] ** 2 + translateSpy.args[i][1] ** 2;
-      (Math.abs(radius - (i * 2) ** 2) < 1e-10).should.be.true;
-      arcSpy.args[i][2].should.eql(10 - 2 * i);
+        translateSpy.mock.calls[i][0] ** 2 + translateSpy.mock.calls[i][1] ** 2;
+      expect(Math.abs(radius - (i * 2) ** 2)).toBeLessThan(1e-10);
+      expect(arcSpy.mock.calls[i][2]).toBe(10 - 2 * i);
       if (i < 3) {
-        mockCanvas.globalAlpha.should.eql(1 - i / 3);
+        expect(mockCanvas.globalAlpha).toBe(1 - i / 3);
       }
       i++;
     };
@@ -538,18 +536,18 @@ describe("firework", () => {
 
   it("moveOptions with array type", async () => {
     let i = 0;
-    const translateSpy = sinon.spy();
-    const arcSpy = sinon.spy();
+    const translateSpy = vi.fn();
+    const arcSpy = vi.fn();
     mockCanvas.rotate = () => {};
     mockCanvas.translate = translateSpy;
     mockCanvas.arc = (...args) => {
       arcSpy(...args);
       const radius =
-        translateSpy.args[i][0] ** 2 + translateSpy.args[i][1] ** 2;
-      (Math.abs(radius - (i * 2) ** 2) < 1e-10).should.be.true;
-      arcSpy.args[i][2].should.eql(10 - 2 * i);
+        translateSpy.mock.calls[i][0] ** 2 + translateSpy.mock.calls[i][1] ** 2;
+      expect(Math.abs(radius - (i * 2) ** 2)).toBeLessThan(1);
+      expect(arcSpy.mock.calls[i][2]).toBe(10 - 2 * i);
       if (i < 3) {
-        mockCanvas.globalAlpha.should.eql(1 - i / 3);
+        expect(mockCanvas.globalAlpha).toBe(1 - i / 3);
       }
       i++;
     };
