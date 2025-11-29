@@ -42,52 +42,41 @@ const updateCoords = (e: MouseEvent | TouchEvent): void => {
   pointerY = clientY;
 };
 
-const setParticleMovement = (
-  particle: ParticleOptions
-) => {
+const getAlphaAnim = (options: EmitOptions | DiffuseOptions) => {
+  const {
+    alpha = 0,
+    alphaEasing = "linear",
+    alphaDuration = [600, 800],
+  } = options;
+  return {
+    value: sample(formatAlpha(alpha)) / 100,
+    easing: alphaEasing,
+    duration: sample(alphaDuration),
+  };
+};
+
+const setParticleMovement = (particle: ParticleOptions) => {
   const { move, moveOptions } = particle as {
     move: Move[];
     moveOptions: MoveOptions[];
   };
-  let dist: Record<string, any> = {};
+  const dist: Record<string, any> = {};
   move.forEach((m, i) => {
+    const options = moveOptions[i] || {};
     if (m === "emit") {
-      const {
-        radius = 0.1,
-        alphaChange = false,
-        alphaEasing = "linear",
-        alphaDuration = [600, 800],
-        alpha = 0,
-      } = (moveOptions[i] as EmitOptions) || {};
-      dist = {
-        x: (p: BaseEntity) => p.endPos!.x,
-        y: (p: BaseEntity) => p.endPos!.y,
-        radius: sample(radius),
-      };
+      const { radius = 0.1, alphaChange = false } = options as EmitOptions;
+      dist.x = (p: BaseEntity) => p.endPos!.x;
+      dist.y = (p: BaseEntity) => p.endPos!.y;
+      dist.radius = sample(radius);
       if (alphaChange) {
-        dist.alpha = {
-          value: sample(formatAlpha(alpha)) / 100,
-          easing: alphaEasing,
-          duration: sample(alphaDuration),
-        };
+        dist.alpha = getAlphaAnim(options as EmitOptions);
       }
     } else if (m === "diffuse") {
-      const {
-        diffuseRadius = [80, 160],
-        lineWidth = 0,
-        alphaEasing = "linear",
-        alphaDuration = [600, 800],
-        alpha = 0,
-      } = (moveOptions[i] as DiffuseOptions) || {};
-      dist = {
-        radius: sample(diffuseRadius),
-        lineWidth: sample(lineWidth),
-        alpha: {
-          value: sample(formatAlpha(alpha)) / 100,
-          easing: alphaEasing,
-          duration: sample(alphaDuration),
-        },
-      };
+      const { diffuseRadius = [80, 160], lineWidth = 0 } =
+        options as DiffuseOptions;
+      dist.radius = sample(diffuseRadius);
+      dist.lineWidth = sample(lineWidth);
+      dist.alpha = getAlphaAnim(options as DiffuseOptions);
     } else if (m === "rotate") {
       dist.rotation = (p: BaseEntity) => p.endRotation!;
     }
