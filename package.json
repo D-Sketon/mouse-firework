@@ -9,6 +9,11 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "frontend",
+    "animation",
+    "javascript"
+  ],
   "scripts": {
     "build": "rollup -c",
     "build:umd": "rollup -c umd.config.mjs",
@@ -18,18 +23,18 @@
   "author": "D-Sketon",
   "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.8",
+    "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.4",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/jsdom": "^27.0.0",
-    "@vitest/coverage-v8": "^3.2.4",
-    "jsdom": "^27.0.1",
-    "rollup": "^4.52.5",
+    "@vitest/coverage-v8": "^4.0.14",
+    "jsdom": "^27.2.0",
+    "rollup": "^4.53.3",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.14"
   },
   "dependencies": {
     "theme-shokax-anime": "^0.0.8"

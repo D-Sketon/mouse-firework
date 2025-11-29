@@ -14,10 +14,14 @@ describe("firework", () => {
     `<!DOCTYPE html><button id="test">Hello world</button>`
   );
   global.document = dom.window.document;
-  global.navigator = dom.window.navigator;
+  Object.defineProperty(global, 'navigator', {
+    value: dom.window.navigator,
+    writable: true
+  });
   // @ts-expect-error
   global.window = dom.window;
   global.HTMLElement = dom.window.HTMLElement;
+  global.getComputedStyle = dom.window.getComputedStyle;
 
   const mockCanvas = {
     fillRect: () => {},
@@ -588,5 +592,70 @@ describe("firework", () => {
     });
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait(1200);
+  });
+
+  it("support css variable color", async () => {
+    document.documentElement.style.setProperty("--test-color", "rgba(255, 0, 0, 1)");
+    const fillSpy = vi.fn();
+    global.requestAnimationFrame = () => 0;
+    mockCanvas.fill = fillSpy;
+    
+    const { default: firework } = await import("../src/index");
+    firework({
+      excludeElements: [],
+      particles: [
+        {
+          shape: "circle",
+          move: [],
+          colors: ["var(--test-color)"],
+          number: 1,
+          duration: 1000,
+          shapeOptions: {
+            radius: 10,
+          },
+        },
+      ],
+    });
+
+    document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait();
+    
+    expect(mockCanvas.fillStyle).toBe("rgba(255, 0, 0, 1)");
+    mockCanvas.fillStyle = "";
+  });
+
+  it("init when document is loading", async () => {
+    const spy = vi.fn();
+    global.requestAnimationFrame = spy;
+    
+    // Mock document.readyState
+    Object.defineProperty(document, 'readyState', {
+      value: 'loading',
+      writable: true
+    });
+
+    const { default: firework } = await import("../src/index");
+    firework({
+      excludeElements: [],
+      particles: [
+        {
+          shape: "circle",
+          move: ["emit"],
+          colors: ["rgba(255,182,185,.9)"],
+          number: 30,
+          duration: [1200, 1800],
+          shapeOptions: {
+            radius: [16, 32],
+          },
+        },
+      ],
+    });
+
+    // Trigger DOMContentLoaded
+    window.dispatchEvent(new window.Event('DOMContentLoaded'));
+    
+    document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait();
+    expect(spy).toHaveBeenCalled();
   });
 });
