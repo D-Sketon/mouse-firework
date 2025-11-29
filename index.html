@@ -3,258 +3,433 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>mouse-firework</title>
+  <title>Mouse Firework - Configurator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="keywords" content="mouse-firework">
-  <meta name="description" content="mouse-firework">
+  <meta name="keywords" content="mouse-firework, canvas, animation, particles">
+  <meta name="description" content="A lightweight mouse click firework effect library.">
+  
+  <!-- Library Styles -->
   <link rel="stylesheet" href="./lib/codemirror.css">
   <link rel="stylesheet" href="./lib/idea.css">
   <link rel="stylesheet" href="./lib/addon/fold/foldgutter.css">
   <link rel="stylesheet" href="./lib/addon/hint/show-hint.css">
+
   <style>
+    :root {
+      --sidebar-width: 420px;
+      --sidebar-bg: rgba(255, 255, 255, 0.98);
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --text-color: #1f2937;
+      --border-color: #e5e7eb;
+    }
+
     body {
-      background-color: black;
       margin: 0;
       padding: 0;
+      background-color: #000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Sidebar Layout */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      z-index: 10000;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    /* Header */
+    .header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--text-color);
+      font-weight: 700;
+    }
+
+    .header span {
+      font-size: 0.75rem;
+      background: #f3f4f6;
+      padding: 2px 8px;
+      border-radius: 12px;
+      color: #6b7280;
+    }
+
+    /* Editor */
+    .editor-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
     }
 
     .CodeMirror {
-      width: 50vw;
-      height: calc(100vh - 90px);
+      height: 100% !important;
+      font-family: "Fira Code", Consolas, Monaco, monospace;
+      font-size: 13px;
+      line-height: 1.5;
     }
 
-    button {
-      width: 50vw;
-      height: 40px;
-      border: none;
-      outline: none;
+    /* Controls */
+    .controls {
+      padding: 20px;
+      background: #f9fafb;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
       cursor: pointer;
-      border-radius: 5px;
-      background-color: #3498db;
-      color: #ffffff;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    button.template {
-      background-color: #1f5092;
-      margin: 5px 0;
+    .btn-secondary {
+      background: #fff;
+      border-color: var(--border-color);
+      color: var(--text-color);
     }
 
-    button:hover {
-      background-color: #2980b9;
+    .btn-secondary:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
     }
 
-    button:active {
-      background-color: #1f5092;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Toggle Button */
+    .toggle-btn {
+      position: absolute;
+      right: -48px;
+      top: 20px;
+      width: 48px;
+      height: 48px;
+      background: var(--sidebar-bg);
+      border: none;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-color);
+      font-size: 1.25rem;
+      transition: color 0.2s;
+    }
+    
+    .toggle-btn:hover {
+      color: var(--primary-color);
+    }
+
+    /* Hint */
+    .hint {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 8px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
     }
   </style>
 </head>
 
 <body>
+  <div id="sidebar">
+    <button class="toggle-btn" onclick="toggleSidebar()" title="Toggle Settings">
+      ⚙️
+    </button>
+    
+    <div class="header">
+      <h1>Mouse Firework</h1>
+      <span>v0.1.1</span>
+    </div>
+
+    <div class="editor-wrapper">
+      <textarea id="code-editor"></textarea>
+    </div>
+
+    <div class="controls">
+      <div class="template-grid">
+        <button class="btn btn-secondary" onclick="chooseTemplate(0)">Template 1</button>
+        <button class="btn btn-secondary" onclick="chooseTemplate(1)">Template 2</button>
+        <button class="btn btn-secondary" onclick="chooseTemplate(2)">Template 3</button>
+        <button class="btn btn-secondary" onclick="chooseTemplate(3)">Template 4</button>
+      </div>
+      
+      <div>
+        <button class="btn btn-primary" onclick="applyConfig()">
+          Apply Changes
+        </button>
+        <div class="hint">Click anywhere on the black area to test</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Libraries -->
   <script src="./lib/codemirror.js"></script>
   <script src="./lib/javascript/javascript.js"></script>
   <script src="./lib/addon/fold/foldcode.js"></script>
   <script src="./lib/addon/fold/foldgutter.js"></script>
   <script src="./lib/addon/fold/brace-fold.js"></script>
   <script src="./lib/addon/fold/comment-fold.js"></script>
-
   <script src="./lib/addon/edit/matchbrackets.js"></script>
   <script src="./lib/addon/edit/closebrackets.js"></script>
-
   <script src="./lib/addon/hint/show-hint.js"></script>
   <script src="./lib/addon/hint/anyword-hint.js"></script>
-
   <script src="./lib/addon/comment/comment.js"></script>
-
   <script src="./lib/index.umd.js"></script>
-  <script>
-    const defaultOptions = `
-{
-  "excludeElements": ["a"],
-  "particles": [
-    {
-      "shape": "circle",
-      "move": ["emit"],
-      "easing": "easeOutExpo",
-      "colors": [
-        "rgba(255,182,185,.9)",
-        "rgba(250,227,217,.9)",
-        "rgba(187,222,214,.9)",
-        "rgba(138,198,209,.9)"
-      ],
-      "number": 30,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": [16, 32]
-      }
-    },
-    {
-      "shape": "star",
-      "move": ["diffuse", "rotate"],
-      "easing": "easeOutExpo",
-      "colors": ["#FFF"],
-      "number": 1,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": 20,
-        "alpha": 0.5,
-        "lineWidth": 6,
-        "spikes": 5
-      }
-    }
-  ]
-}`.trim()
 
-    const templateArray = [
-      `
-{
-  "excludeElements": ["a"],
-  "particles": [
-    {
-      "shape": "circle",
-      "move": ["emit"],
-      "easing": "easeOutExpo",
-      "colors": [
-        "rgba(255,182,185,.9)",
-        "rgba(250,227,217,.9)",
-        "rgba(187,222,214,.9)",
-        "rgba(138,198,209,.9)"
-      ],
-      "number": 30,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": [16, 32]
-      }
-    },
-    {
-      "shape": "circle",
-      "move": ["diffuse"],
-      "easing": "easeOutExpo",
-      "colors": ["#FFF"],
-      "number": 1,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": 20,
-        "alpha": 0.5,
-        "lineWidth": 6
-      }
-    }
-  ]
-}
-`,
-      `
+  <script>
+    // Default Configuration
+    const defaultConfig = {
+      "excludeElements": ["a"],
+      "particles": [
+        {
+          "shape": "circle",
+          "move": ["emit"],
+          "easing": "easeOutExpo",
+          "colors": [
+            "rgba(255,182,185,.9)",
+            "rgba(250,227,217,.9)",
+            "rgba(187,222,214,.9)",
+            "rgba(138,198,209,.9)"
+          ],
+          "number": 30,
+          "duration": [1200, 1800],
+          "shapeOptions": {
+            "radius": [16, 32]
+          }
+        },
+        {
+          "shape": "star",
+          "move": ["diffuse", "rotate"],
+          "easing": "easeOutExpo",
+          "colors": ["#FFF"],
+          "number": 1,
+          "duration": [1200, 1800],
+          "shapeOptions": {
+            "radius": 20,
+            "alpha": 0.5,
+            "lineWidth": 6,
+            "spikes": 5
+          }
+        }
+      ]
+    };
+
+    // Templates
+    const templates = [
+      // Template 1
       {
-  "excludeElements": ["a"],
-  "particles": [
-    {
-      "shape": "circle",
-      "move": ["emit"],
-      "easing": "easeOutExpo",
-      "colors": [
-      "#ff324a", 
-      "#31ffa6", 
-      "#206eff", 
-      "#ffff99"
-      ],
-      "number": 30,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": [16, 32]
-      }
-    }
-  ]
-}
-`,
-      `
-{
-  "excludeElements": ["a"],
-  "particles": [
-    {
-      "shape": "polygon",
-      "move": ["emit", "rotate"],
-      "easing": "easeOutExpo",
-      "colors": [
-      "#ff324a", 
-      "#31ffa6", 
-      "#206eff", 
-      "#ffff99"
-      ],
-      "number": 30,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": [16, 32],
-        "sides": 5
-      }
-    },
-    {
-      "shape": "polygon",
-      "move": ["diffuse","rotate"],
-      "easing": "easeOutExpo",
-      "colors": ["#FFF"],
-      "number": 3,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": 20,
-        "alpha": 0.5,
-        "lineWidth": 6,
-        "sides": 5
-      }
-    }
-  ]
-}
-      `, `
+        "excludeElements": ["a"],
+        "particles": [
+          {
+            "shape": "circle",
+            "move": ["emit"],
+            "easing": "easeOutExpo",
+            "colors": [
+              "rgba(255,182,185,.9)",
+              "rgba(250,227,217,.9)",
+              "rgba(187,222,214,.9)",
+              "rgba(138,198,209,.9)"
+            ],
+            "number": 30,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": [16, 32]
+            }
+          },
+          {
+            "shape": "circle",
+            "move": ["diffuse"],
+            "easing": "easeOutExpo",
+            "colors": ["#FFF"],
+            "number": 1,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": 20,
+              "alpha": 0.5,
+              "lineWidth": 6
+            }
+          }
+        ]
+      },
+      // Template 2
       {
-  "excludeElements": ["a"],
-  "particles": [
-    {
-      "shape": "polygon",
-      "move": ["diffuse","rotate"],
-      "easing": "easeOutExpo",
-      "colors": ["#FFF"],
-      "number": 1,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": 20,
-        "alpha": 0.5,
-        "lineWidth": 6,
-        "sides": 5
+        "excludeElements": ["a"],
+        "particles": [
+          {
+            "shape": "circle",
+            "move": ["emit"],
+            "easing": "easeOutExpo",
+            "colors": [
+            "#ff324a", 
+            "#31ffa6", 
+            "#206eff", 
+            "#ffff99"
+            ],
+            "number": 30,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": [16, 32]
+            }
+          }
+        ]
+      },
+      // Template 3
+      {
+        "excludeElements": ["a"],
+        "particles": [
+          {
+            "shape": "polygon",
+            "move": ["emit", "rotate"],
+            "easing": "easeOutExpo",
+            "colors": [
+            "#ff324a", 
+            "#31ffa6", 
+            "#206eff", 
+            "#ffff99"
+            ],
+            "number": 30,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": [16, 32],
+              "sides": 5
+            }
+          },
+          {
+            "shape": "polygon",
+            "move": ["diffuse","rotate"],
+            "easing": "easeOutExpo",
+            "colors": ["#FFF"],
+            "number": 3,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": 20,
+              "alpha": 0.5,
+              "lineWidth": 6,
+              "sides": 5
+            }
+          }
+        ]
+      },
+      // Template 4
+      {
+        "excludeElements": ["a"],
+        "particles": [
+          {
+            "shape": "polygon",
+            "move": ["diffuse","rotate"],
+            "easing": "easeOutExpo",
+            "colors": ["#FFF"],
+            "number": 1,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": 20,
+              "alpha": 0.5,
+              "lineWidth": 6,
+              "sides": 5
+            }
+          },
+          {
+            "shape": "star",
+            "move": ["diffuse","rotate"],
+            "easing": "easeOutExpo",
+            "colors": ["#FFF"],
+            "number": 1,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": 20,
+              "alpha": 0.5,
+              "lineWidth": 6,
+              "spikes": 5
+            }
+          },
+          {
+            "shape": "circle",
+            "move": ["diffuse","rotate"],
+            "easing": "easeOutExpo",
+            "colors": ["#FFF"],
+            "number": 1,
+            "duration": [1200, 1800],
+            "shapeOptions": {
+              "radius": 20,
+              "alpha": 0.5,
+              "lineWidth": 6
+            }
+          }
+        ]
       }
-    },
-    {
-      "shape": "star",
-      "move": ["diffuse","rotate"],
-      "easing": "easeOutExpo",
-      "colors": ["#FFF"],
-      "number": 1,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": 20,
-        "alpha": 0.5,
-        "lineWidth": 6,
-        "spikes": 5
-      }
-    },
-    {
-      "shape": "circle",
-      "move": ["diffuse","rotate"],
-      "easing": "easeOutExpo",
-      "colors": ["#FFF"],
-      "number": 1,
-      "duration": [1200, 1800],
-      "shapeOptions": {
-        "radius": 20,
-        "alpha": 0.5,
-        "lineWidth": 6
-      }
-    }
-  ]
-}
-      `
-    ]
-    const editor = CodeMirror(document.body, {
+    ];
+
+    // Initialize Editor
+    const editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
       mode: "application/json",
-      value: defaultOptions,
+      value: JSON.stringify(defaultConfig, null, 2),
       smartIndent: true,
       styleActiveLine: true,
       lineNumbers: true,
@@ -268,48 +443,61 @@
       matchBrackets: true,
       autoCloseBrackets: true,
       foldGutter: true,
-      autoRefresh: true,
       theme: 'idea'
     });
-    let value = defaultOptions;
-    editor.on('change', cm => {
-      value = cm.getValue()
-    })
-    const chooseTemplate = (number) => {
-      if (templateArray[number]) {
-        value = templateArray[number].trim()
-        editor.setValue(value)
-        firework(JSON.parse(value))
-      }
-    }
-    const button = document.createElement('button')
-    button.innerHTML = "application options"
-    button.onclick = () => {
-      try {
-        firework(JSON.parse(value))
-      } catch (e) {
-        console.error(e)
-        alert("invalid options!")
-      }
-    }
-    document.querySelector('.CodeMirror').parentNode.appendChild(button)
-    const templateDiv = document.createElement('div')
-    templateDiv.style = `
-      background-color: #fff;
-      height: 50px;
-      display: flex;
-      width: 100vw;
-      gap: 5px;
-    `
-    templateDiv.innerHTML = `
-      <button class="template" onclick="chooseTemplate(0)">template 1</button>
-      <button class="template" onclick="chooseTemplate(1)">template 2</button>
-      <button class="template" onclick="chooseTemplate(2)">template 3</button>
-      <button class="template" onclick="chooseTemplate(3)">template 4</button>
-    `
-    document.querySelector('.CodeMirror').parentNode.appendChild(templateDiv)
 
+    // Initial Firework
+    firework(defaultConfig);
+
+    // Functions
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+
+    function chooseTemplate(index) {
+      if (templates[index]) {
+        const config = templates[index];
+        const configStr = JSON.stringify(config, null, 2);
+        editor.setValue(configStr);
+        applyConfig();
+      }
+    }
+
+    function applyConfig() {
+      try {
+        const configStr = editor.getValue();
+        const config = JSON.parse(configStr);
+        
+        // Ensure UI elements are excluded to prevent accidental triggers
+        const requiredExcludes = ["#sidebar", "button", "a", "input"];
+        if (!config.excludeElements) config.excludeElements = [];
+        
+        requiredExcludes.forEach(selector => {
+          if (!config.excludeElements.includes(selector)) {
+            config.excludeElements.push(selector);
+          }
+        });
+
+        firework(config);
+        
+        // Visual feedback for button
+        const btn = document.querySelector('.btn-primary');
+        const originalText = btn.innerText;
+        btn.innerText = "Applied!";
+        btn.style.background = "#10b981";
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.background = "";
+        }, 1000);
+
+      } catch (e) {
+        console.error(e);
+        alert("Invalid JSON Configuration: " + e.message);
+      }
+    }
   </script>
+  
+  <!-- Analytics -->
   <script>
     var _hmt = _hmt || [];
     (function() {
@@ -318,7 +506,6 @@
       var s = document.getElementsByTagName("script")[0]; 
       s.parentNode.insertBefore(hm, s);
     })();
-    </script>    
+  </script>
 </body>
-
 </html>
