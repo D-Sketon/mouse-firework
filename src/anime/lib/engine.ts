@@ -15,12 +15,14 @@ const change = (
 };
 
 export default (anime: Anime) => {
-  if (!anime.targets) return;
   // 动画开始时间
   const start = Date.now();
   // 动画结束时间
   const end = start + anime.duration;
-  const targetList = Array.isArray(anime.targets)
+
+  const targetList = !anime.targets
+    ? []
+    : Array.isArray(anime.targets)
     ? anime.targets
     : [anime.targets];
 
