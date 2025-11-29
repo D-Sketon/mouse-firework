@@ -23,6 +23,12 @@ export default abstract class BaseEntity {
     this.x = x;
     this.y = y;
     this.color = color;
+    if (this.color.startsWith("var(")) {
+      const [, key] = this.color.match(/var\((--[^)]+)\)/) || [];
+      if (key) {
+        this.color = getComputedStyle(document.documentElement).getPropertyValue(key).trim();
+      }
+    }
     this.radius = radius;
     this.alpha = alpha;
     this.lineWidth = lineWidth;
@@ -38,21 +44,13 @@ export default abstract class BaseEntity {
     ctx.rotate(this.rotation * (Math.PI / 180));
     ctx.globalAlpha = this.alpha;
 
-    let color = this.color;
-    if (this.color.startsWith("var(")) {
-      const [, key] = this.color.match(/var\((--[^)]+)\)/) || [];
-      if (key) {
-        color = getComputedStyle(document.documentElement).getPropertyValue(key).trim();
-      }
-    }
-
     this.paint();
     if (this.lineWidth) {
       ctx.lineWidth = this.lineWidth;
-      ctx.strokeStyle = color;
+      ctx.strokeStyle = this.color;
       ctx.stroke();
     } else {
-      ctx.fillStyle = color;
+      ctx.fillStyle = this.color;
       ctx.fill();
     }
     ctx.globalAlpha = 1;
