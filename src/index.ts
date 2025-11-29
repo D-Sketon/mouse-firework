@@ -36,12 +36,10 @@ const setCanvasSize = (): void => {
 };
 
 const updateCoords = (e: MouseEvent | TouchEvent): void => {
-  pointerX =
-    (e as MouseEvent).clientX ??
-    ((e as TouchEvent).touches && (e as TouchEvent).touches[0].clientX);
-  pointerY =
-    (e as MouseEvent).clientY ??
-    ((e as TouchEvent).touches && (e as TouchEvent).touches[0].clientY);
+  const { clientX, clientY } =
+    (e as TouchEvent).touches?.[0] ?? (e as MouseEvent);
+  pointerX = clientX;
+  pointerY = clientY;
 };
 
 const setParticleMovement = (

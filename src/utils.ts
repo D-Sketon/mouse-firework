@@ -7,13 +7,8 @@ export const sample = (raw: number | [number, number]): number => {
   return Array.isArray(raw) ? anime.random(raw[0], raw[1]) : raw;
 };
 
-export const hasAncestor = (node: Element, name: string): boolean => {
-  name = name.toUpperCase();
-  while (node) {
-    if (node.nodeName === name) return true;
-    node = node.parentNode as Element;
-  }
-  return false;
+export const hasAncestor = (node: Element, selector: string): boolean => {
+  return !!node.closest?.(selector);
 };
 
 export const setEndPos = (p: BaseEntity, particle: ParticleOptions) => {

@@ -120,6 +120,43 @@ describe("firework", () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
+  it("excludeElements with selector", async () => {
+    const spy = vi.fn();
+    global.requestAnimationFrame = spy;
+    const { default: firework } = await import("../src/index");
+    firework({
+      excludeElements: [".ignore-class", "#ignore-id"],
+      particles: [
+        {
+          shape: "circle",
+          move: ["emit"],
+          colors: ["rgba(255,182,185,.9)"],
+          number: 30,
+          duration: [1200, 1800],
+          shapeOptions: {
+            radius: [16, 32],
+          },
+        },
+      ],
+    });
+
+    const div = document.createElement("div");
+    div.className = "ignore-class";
+    document.body.appendChild(div);
+
+    const btn = document.createElement("button");
+    btn.id = "ignore-id";
+    document.body.appendChild(btn);
+
+    div.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait();
+    expect(spy).not.toHaveBeenCalled();
+
+    btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait();
+    expect(spy).not.toHaveBeenCalled();
+  });
+
   it("stroke shape - base entity", async () => {
     const translateSpy = vi.fn();
     const rotateSpy = vi.fn();
