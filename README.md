@@ -256,3 +256,44 @@ Duration of alpha changes during diffusion, default 600-800ms
 ###### angle(`number | [number, number]`, default = `[-180, 180]`)
 
 Angle of rotation in degrees, default -180-180deg
+
+## Custom Entity
+
+You can create your own entity by extending `BaseEntity` and registering it with `registerEntity`.
+
+```js
+import firework from 'mouse-firework'
+
+const { registerEntity, BaseEntity } = firework
+
+class MyEntity extends BaseEntity {
+  constructor(ctx, x, y, color, options) {
+    super(ctx, x, y, color, options)
+    // your custom options
+  }
+  paint() {
+    const { ctx, radius } = this
+    ctx.beginPath()
+    // draw your shape
+    ctx.rect(-radius, -radius, radius * 2, radius * 2)
+    ctx.closePath()
+  }
+}
+
+registerEntity('my-entity', MyEntity)
+
+firework({
+  particles: [
+    {
+      shape: 'my-entity',
+      move: 'emit',
+      colors: ['red', 'blue'],
+      number: 10,
+      duration: 1000,
+      shapeOptions: {
+        radius: 10,
+      }
+    }
+  ]
+})
+```
