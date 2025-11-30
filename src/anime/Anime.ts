@@ -22,7 +22,8 @@ export default class Anime {
   isPlay: boolean;
   constructor(options: Partial<AnimeOptions> = defaultOptions) {
     options = { ...defaultOptions, ...options };
-    const { targets, duration, easing, update, ...dest } = options as AnimeOptions;
+    const { targets, duration, easing, update, ...dest } =
+      options as AnimeOptions;
     this.targets = targets;
     this.duration = duration;
     this.easing = easing;
