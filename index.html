@@ -30,6 +30,12 @@
         --border-color: #e5e7eb;
       }
 
+      @media (max-width: 600px) {
+        :root {
+          --sidebar-width: calc(100vw - 56px);
+        }
+      }
+
       body {
         margin: 0;
         padding: 0;
@@ -469,6 +475,23 @@
             Apply Changes
           </button>
           <div class="hint">Click anywhere on the black area to test</div>
+        </div>
+
+        <div style="text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+          Created by
+          <a
+            href="https://github.com/D-Sketon"
+            target="_blank"
+            style="color: #6b7280; text-decoration: none"
+            >@D-Sketon</a
+          >
+          <span style="margin: 0 4px">|</span>
+          <a
+            href="https://github.com/D-Sketon/mouse-firework"
+            target="_blank"
+            style="color: #6b7280; text-decoration: none"
+            >GitHub</a
+          >
         </div>
       </div>
     </div>
