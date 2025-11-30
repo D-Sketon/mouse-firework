@@ -67,6 +67,10 @@ describe("firework", () => {
     mockCanvas.arc = () => {};
     mockCanvas.stroke = () => {};
     mockCanvas.fill = () => {};
+    Object.defineProperty(document, 'readyState', {
+      value: 'complete',
+      writable: true
+    });
   });
 
   it("base call raf", async () => {
@@ -694,5 +698,47 @@ describe("firework", () => {
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
     expect(spy).toHaveBeenCalled();
+  });
+
+  it("custom entity", async () => {
+    const { default: firework, registerEntity, BaseEntity } = await import("../src/index");
+    
+    class MyEntity extends BaseEntity {
+      options: any;
+      constructor(ctx: CanvasRenderingContext2D, x: number, y: number, color: string, options: any) {
+        super(ctx, x, y, color, options);
+        this.options = options;
+      }
+      paint() {
+        this.ctx.rect(0, 0, 10, 10);
+      }
+    }
+    
+    registerEntity("my-entity", MyEntity);
+    
+    const rectSpy = vi.fn();
+    mockCanvas.rect = rectSpy;
+    global.requestAnimationFrame = () => 0;
+
+    firework({
+      excludeElements: [],
+      particles: [
+        {
+          shape: "my-entity",
+          move: [],
+          colors: ["red"],
+          number: 1,
+          duration: 1000,
+          shapeOptions: {
+            radius: 10,
+            customProp: 123
+          },
+        },
+      ],
+    });
+
+    document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait();
+    expect(rectSpy).toHaveBeenCalled();
   });
 });

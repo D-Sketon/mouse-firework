@@ -18,10 +18,8 @@ export const setEndPos = (p: BaseEntity, particle: ParticleOptions) => {
       (particle.moveOptions as EmitOptions[])[index] || {};
     const angle = (anime.random(0, 360) * Math.PI) / 180;
     const radius = (anime.random(0, 1) ? 1 : -1) * sample(emitRadius);
-    p.endPos = {
-      x: p.x + radius * Math.cos(angle),
-      y: p.y + radius * Math.sin(angle),
-    };
+    p.target.x = p.x + radius * Math.cos(angle);
+    p.target.y = p.y + radius * Math.sin(angle);
   }
 };
 
@@ -30,7 +28,7 @@ export const setEndRotation = (p: BaseEntity, particle: ParticleOptions) => {
   if (index >= 0) {
     const { angle = [-180, 180] } =
       (particle.moveOptions as RotateOptions[])[index] || {};
-    p.endRotation = sample(angle);
+    p.target.rotation = sample(angle);
   }
 };
 

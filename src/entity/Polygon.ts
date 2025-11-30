@@ -1,3 +1,4 @@
+import { sample } from "../utils";
 import BaseEntity from "./BaseEntity";
 
 export default class Polygon extends BaseEntity {
@@ -7,13 +8,15 @@ export default class Polygon extends BaseEntity {
     x: number,
     y: number,
     color: string,
-    radius: number,
-    alpha: number,
-    sides: number,
-    lineWidth?: number
+    options: {
+      radius: number;
+      alpha: number;
+      lineWidth?: number;
+      sides: number | [number, number];
+    }
   ) {
-    super(ctx, x, y, color, radius, alpha, lineWidth);
-    this.sides = sides;
+    super(ctx, x, y, color, options);
+    this.sides = sample(options.sides);
   }
 
   paint(): void {

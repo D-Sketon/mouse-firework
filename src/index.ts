@@ -10,7 +10,7 @@ import type {
 } from "./types";
 import { formatAlpha, hasAncestor, sample } from "./utils";
 import BaseEntity from "./entity/BaseEntity";
-import { entityFactory } from "./factory";
+import { entityFactory, registerEntity } from "./factory";
 
 const canvasEl = document.createElement("canvas");
 canvasEl.style.cssText =
@@ -65,8 +65,8 @@ const setParticleMovement = (particle: ParticleOptions) => {
     const options = moveOptions[i] || {};
     if (m === "emit") {
       const { radius = 0.1, alphaChange = false } = options as EmitOptions;
-      dist.x = (p: BaseEntity) => p.endPos!.x;
-      dist.y = (p: BaseEntity) => p.endPos!.y;
+      dist.x = (p: BaseEntity) => p.target.x;
+      dist.y = (p: BaseEntity) => p.target.y;
       dist.radius = sample(radius);
       if (alphaChange) {
         dist.alpha = getAlphaAnim(options as EmitOptions);
@@ -78,7 +78,7 @@ const setParticleMovement = (particle: ParticleOptions) => {
       dist.lineWidth = sample(lineWidth);
       dist.alpha = getAlphaAnim(options as DiffuseOptions);
     } else if (m === "rotate") {
-      dist.rotation = (p: BaseEntity) => p.endRotation!;
+      dist.rotation = (p: BaseEntity) => p.target.rotation!;
     }
   });
   return dist;
@@ -146,6 +146,8 @@ const animateParticles = (x: number, y: number): void => {
   });
   timeLine.play();
 };
+
+export { registerEntity, BaseEntity };
 
 export default (options: FireworkOptions) => {
   if (document.readyState === "loading") {

@@ -1,3 +1,4 @@
+import { sample } from "../utils";
 import BaseEntity from "./BaseEntity";
 
 export default class Star extends BaseEntity {
@@ -7,13 +8,15 @@ export default class Star extends BaseEntity {
     x: number,
     y: number,
     color: string,
-    radius: number,
-    alpha: number,
-    spikes: number,
-    lineWidth?: number
+    options: {
+      radius: number;
+      alpha: number;
+      lineWidth?: number;
+      spikes: number | [number, number];
+    }
   ) {
-    super(ctx, x, y, color, radius, alpha, lineWidth);
-    this.spikes = spikes;
+    super(ctx, x, y, color, options);
+    this.spikes = sample(options.spikes);
   }
 
   paint(): void {
@@ -30,4 +33,3 @@ export default class Star extends BaseEntity {
     ctx.closePath();
   }
 }
- 

@@ -5,13 +5,17 @@ import BaseEntity from "./entity/BaseEntity";
 import Circle from "./entity/Circle";
 import Polygon from "./entity/Polygon";
 import Star from "./entity/Star";
-import { ParticleOptions, StarOptions, PolygonOptions } from "./types";
+import { ParticleOptions } from "./types";
 import { formatAlpha, sample, setEndPos, setEndRotation } from "./utils";
 
-const ENTITY_MAP = {
+const ENTITY_MAP: Record<string, any> = {
   circle: Circle,
   polygon: Polygon,
   star: Star,
+};
+
+export const registerEntity = (name: string, entity: any) => {
+  ENTITY_MAP[name] = entity;
 };
 
 export const entityFactory = (
@@ -22,25 +26,20 @@ export const entityFactory = (
 ): BaseEntity[] => {
   const shapeType = ENTITY_MAP[particle.shape];
   const { shapeOptions, colors, number } = particle;
-  let { radius, alpha = 1, lineWidth } = shapeOptions;
-  alpha = formatAlpha(alpha);
+  let { radius = 0, alpha = 1, lineWidth = 0 } = shapeOptions || {};
   return Array.from({ length: sample(number) }, () => {
-    const color = colors[anime.random(0, colors.length - 1)];
-    const shapeArgs: [
-      CanvasRenderingContext2D,
-      number,
-      number,
-      string,
-      number,
-      number
-    ] = [ctx, x, y, color, sample(radius), sample(alpha) / 100];
-    if (shapeType === Star) {
-      shapeArgs.push(sample((shapeOptions as StarOptions).spikes));
-    } else if (shapeType === Polygon) {
-      shapeArgs.push(sample((shapeOptions as PolygonOptions).sides));
-    }
- 
-    const shape = new shapeType(...shapeArgs, sample(lineWidth!));
+    const shape = new shapeType(
+      ctx,
+      x,
+      y,
+      colors[anime.random(0, colors.length - 1)],
+      {
+        ...shapeOptions,
+        radius: sample(radius),
+        alpha: sample(formatAlpha(alpha)) / 100,
+        lineWidth: sample(lineWidth),
+      }
+    );
 
     setEndPos(shape, particle);
     setEndRotation(shape, particle);

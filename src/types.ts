@@ -187,10 +187,16 @@ interface PolygonParticleOptions extends BaseParticleOptions {
   shapeOptions: PolygonOptions;
 }
 
+export interface CustomParticleOptions extends BaseParticleOptions {
+  shape: string;
+  shapeOptions?: Record<string, any>;
+}
+
 export type ParticleOptions =
   | CircleParticleOptions
   | StarParticleOptions
-  | PolygonParticleOptions;
+  | PolygonParticleOptions
+  | CustomParticleOptions;
 
 /**
  * Main configuration options for the firework effect.

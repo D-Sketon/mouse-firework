@@ -7,17 +7,23 @@ export default abstract class BaseEntity {
   radius: number;
   alpha: number;
   lineWidth?: number;
-  endPos?: { x: number; y: number };
-  endRotation?: number;
+  target: {
+    x?: number;
+    y?: number;
+    rotation?: number;
+  } = {};
 
   constructor(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
     color: string,
-    radius: number,
-    alpha: number,
-    lineWidth?: number
+    options: {
+      radius: number;
+      alpha: number;
+      lineWidth?: number;
+      [key: string]: any;
+    }
   ) {
     this.ctx = ctx;
     this.x = x;
@@ -26,12 +32,15 @@ export default abstract class BaseEntity {
     if (this.color.startsWith("var(")) {
       const [, key] = this.color.match(/var\((--[^)]+)\)/) || [];
       if (key) {
-        this.color = getComputedStyle(document.documentElement).getPropertyValue(key).trim();
+        this.color =
+          getComputedStyle(document.documentElement)
+            .getPropertyValue(key)
+            .trim() || this.color;
       }
     }
-    this.radius = radius;
-    this.alpha = alpha;
-    this.lineWidth = lineWidth;
+    this.radius = options.radius;
+    this.alpha = options.alpha;
+    this.lineWidth = options.lineWidth;
     this.rotation = 0;
   }
 
