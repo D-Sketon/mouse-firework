@@ -28,6 +28,9 @@ export const entityFactory = (
   const { shapeOptions, colors, number } = particle;
   let { radius = 0, alpha = 1, lineWidth = 0 } = shapeOptions || {};
   return Array.from({ length: sample(number) }, () => {
+    if (!shapeType) {
+      throw new Error(`Entity type "${particle.shape}" is not registered.`);
+    }
     const shape = new shapeType(
       ctx,
       x,

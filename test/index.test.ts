@@ -14,9 +14,9 @@ describe("firework", () => {
     `<!DOCTYPE html><button id="test">Hello world</button>`
   );
   global.document = dom.window.document;
-  Object.defineProperty(global, 'navigator', {
+  Object.defineProperty(global, "navigator", {
     value: dom.window.navigator,
-    writable: true
+    writable: true,
   });
   // @ts-expect-error
   global.window = dom.window;
@@ -67,9 +67,9 @@ describe("firework", () => {
     mockCanvas.arc = () => {};
     mockCanvas.stroke = () => {};
     mockCanvas.fill = () => {};
-    Object.defineProperty(document, 'readyState', {
-      value: 'complete',
-      writable: true
+    Object.defineProperty(document, "readyState", {
+      value: "complete",
+      writable: true,
     });
   });
 
@@ -636,11 +636,14 @@ describe("firework", () => {
   });
 
   it("support css variable color", async () => {
-    document.documentElement.style.setProperty("--test-color", "rgba(255, 0, 0, 1)");
+    document.documentElement.style.setProperty(
+      "--test-color",
+      "rgba(255, 0, 0, 1)"
+    );
     const fillSpy = vi.fn();
     global.requestAnimationFrame = () => 0;
     mockCanvas.fill = fillSpy;
-    
+
     const { default: firework } = await import("../src/index");
     firework({
       excludeElements: [],
@@ -660,7 +663,7 @@ describe("firework", () => {
 
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
-    
+
     expect(mockCanvas.fillStyle).toBe("rgba(255, 0, 0, 1)");
     mockCanvas.fillStyle = "";
   });
@@ -668,11 +671,11 @@ describe("firework", () => {
   it("init when document is loading", async () => {
     const spy = vi.fn();
     global.requestAnimationFrame = spy;
-    
+
     // Mock document.readyState
-    Object.defineProperty(document, 'readyState', {
-      value: 'loading',
-      writable: true
+    Object.defineProperty(document, "readyState", {
+      value: "loading",
+      writable: true,
     });
 
     const { default: firework } = await import("../src/index");
@@ -693,19 +696,26 @@ describe("firework", () => {
     });
 
     // Trigger DOMContentLoaded
-    window.dispatchEvent(new window.Event('DOMContentLoaded'));
-    
+    window.dispatchEvent(new window.Event("DOMContentLoaded"));
+
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait();
     expect(spy).toHaveBeenCalled();
   });
 
   it("custom entity", async () => {
-    const { default: firework, registerEntity, BaseEntity } = await import("../src/index");
-    
+    const { default: firework } = await import("../src/index");
+    const { registerEntity, BaseEntity } = firework;
+
     class MyEntity extends BaseEntity {
       options: any;
-      constructor(ctx: CanvasRenderingContext2D, x: number, y: number, color: string, options: any) {
+      constructor(
+        ctx: CanvasRenderingContext2D,
+        x: number,
+        y: number,
+        color: string,
+        options: any
+      ) {
         super(ctx, x, y, color, options);
         this.options = options;
       }
@@ -713,9 +723,9 @@ describe("firework", () => {
         this.ctx.rect(0, 0, 10, 10);
       }
     }
-    
+
     registerEntity("my-entity", MyEntity);
-    
+
     const rectSpy = vi.fn();
     mockCanvas.rect = rectSpy;
     global.requestAnimationFrame = () => 0;
@@ -731,7 +741,7 @@ describe("firework", () => {
           duration: 1000,
           shapeOptions: {
             radius: 10,
-            customProp: 123
+            customProp: 123,
           },
         },
       ],

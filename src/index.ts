@@ -147,9 +147,7 @@ const animateParticles = (x: number, y: number): void => {
   timeLine.play();
 };
 
-export { registerEntity, BaseEntity };
-
-export default (options: FireworkOptions) => {
+const firework = (options: FireworkOptions) => {
   if (document.readyState === "loading") {
     window.addEventListener("DOMContentLoaded", () => initFireworks(options), {
       passive: true,
@@ -158,3 +156,7 @@ export default (options: FireworkOptions) => {
     initFireworks(options);
   }
 };
+
+firework.registerEntity = registerEntity;
+firework.BaseEntity = BaseEntity;
+export default firework;
