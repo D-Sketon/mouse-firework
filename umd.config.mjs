@@ -3,6 +3,12 @@ import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 
+const terserOptions = {
+  compress: {
+    passes: 2,
+  }
+};
+
 export default [
   {
     input: './src/index.ts',
@@ -13,7 +19,7 @@ export default [
         entryFileNames: '[name].umd.js',
         name: 'firework',
         sourcemap: false,
-        plugins: [terser()]
+        plugins: [terser(terserOptions)]
       },
     ],
     plugins: [commonjs(), nodeResolve(), typescript({ module: "ESNext" })]
