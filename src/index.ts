@@ -151,7 +151,7 @@ const initFireworks = (options: FireworkOptions) => {
       clearRenderer.stop();
       clearRenderer = null;
     }
-    if (canvasEl) {
+    if (canvasEl?.parentNode) {
       document.body.removeChild(canvasEl);
       canvasEl = null;
     }
