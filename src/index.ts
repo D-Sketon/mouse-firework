@@ -137,7 +137,7 @@ const initFireworks = (options: FireworkOptions) => {
     resizeObserver?.disconnect();
     activeTimelines.forEach((tl) => tl?.queue.forEach((anime) => anime.stop()));
     clearRenderer?.stop();
-    canvasEl?.parentNode && document.body.removeChild(canvasEl);
+    canvasEl?.remove();
 
     currentCallback = resizeObserver = clearRenderer = canvasEl = null;
     activeTimelines = [];
