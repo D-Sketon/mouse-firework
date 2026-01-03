@@ -75,7 +75,7 @@ describe("cleanup and resource management", () => {
       ],
     });
 
-    // 触发几次点击创建多个timeline
+    // Trigger several clicks to create multiple timelines
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     await wait(10);
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
@@ -85,18 +85,18 @@ describe("cleanup and resource management", () => {
 
     const cancelCallsBefore = cancelAnimationFrameSpy.mock.calls.length;
 
-    // 调用cleanup
+    // Call cleanup
     cleanup?.();
 
     const cancelCallsAfter = cancelAnimationFrameSpy.mock.calls.length;
     
-    // 应该调用了cancelAnimationFrame来停止动画
+    // Should have called cancelAnimationFrame to stop the animation
     expect(cancelCallsAfter).toBeGreaterThan(cancelCallsBefore);
     
-    // 应该移除了事件监听器
+    // Should have removed the event listener
     expect(removeEventListenerSpy).toHaveBeenCalled();
     
-    // canvas应该被移除
+    // Canvas should be removed
     const canvasElements = document.querySelectorAll("canvas");
     expect(canvasElements.length).toBe(0);
 
@@ -135,11 +135,11 @@ describe("cleanup and resource management", () => {
       ],
     });
 
-    // 第二次初始化应该清理第一次的clearRenderer
-    // 调用cleanup2应该正常工作
+    // Second initialization should clean up the first clearRenderer
+    // Calling cleanup2 should work normally
     expect(() => cleanup2?.()).not.toThrow();
     
-    // cleanup1可能指向旧资源，但调用也不应该报错
+    // cleanup1 may point to old resources, but calling it should not throw
     expect(() => cleanup1?.()).not.toThrow();
   });
 
@@ -153,7 +153,7 @@ describe("cleanup and resource management", () => {
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
 
-    // 动态导入以重置模块状态
+    // Dynamic import to reset module state
     delete (global as any).fireworkModule;
     const module = await import("../src/index?t=" + Date.now());
     const firework = module.default;
@@ -168,17 +168,17 @@ describe("cleanup and resource management", () => {
       particles: [{ shape: "circle", move: [], colors: ["blue"], number: 1, duration: 100 }],
     });
 
-    // 应该移除了第一个监听器
+    // Should have removed the first listener
     expect(removeEventListenerSpy).toHaveBeenCalledWith(
       "DOMContentLoaded",
       expect.any(Function)
     );
 
-    // 应该只有一个活跃的监听器
+    // Should have only one active listener
     const domListenerCalls = addEventListenerSpy.mock.calls.filter(
       (call) => call[0] === "DOMContentLoaded"
     );
-    expect(domListenerCalls.length).toBe(2); // 两次调用，但第一个被移除了
+    expect(domListenerCalls.length).toBe(2); // Two calls, but the first was removed
 
     cleanup1?.();
     cleanup2?.();
@@ -204,20 +204,20 @@ describe("cleanup and resource management", () => {
           move: ["emit"],
           colors: ["rgba(255,182,185,.9)"],
           number: 5,
-          duration: 100, // 短时间
+          duration: 100, // Short duration
           shapeOptions: { radius: 10 },
         },
       ],
     });
 
-    // 触发点击
+    // Trigger click
     document.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
     
-    // 等待动画完成 + cleanup延迟
+    // Wait for animation to complete + cleanup delay
     await wait(250);
     
-    // activeTimelines应该被自动清理（我们无法直接访问，但可以验证没有内存泄漏）
-    // 这个测试主要是确保代码执行没有错误
+    // activeTimelines should be automatically cleaned up (we can't access it directly, but we can verify no memory leaks)
+    // This test mainly ensures the code executes without errors
     expect(true).toBe(true);
   });
 });

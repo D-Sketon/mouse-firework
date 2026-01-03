@@ -110,10 +110,8 @@ const initFireworks = (options: FireworkOptions) => {
   if (currentCallback) {
     document.removeEventListener(tap, currentCallback, false);
   }
-  // 清理旧的clearRenderer
-  if (clearRenderer) {
-    clearRenderer.stop();
-  }
+  // Clean up the old clearRenderer
+  clearRenderer?.stop();
   clearRenderer = anime({
     duration: Infinity,
     update() {
@@ -135,9 +133,7 @@ const initFireworks = (options: FireworkOptions) => {
   };
   document.addEventListener(tap, currentCallback, false);
   setCanvasSize(canvasEl, ctx);
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-  }
+  resizeObserver?.disconnect();
   resizeObserver = new ResizeObserver(() => setCanvasSize(canvasEl!, ctx));
   resizeObserver.observe(document.documentElement);
 

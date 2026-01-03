@@ -15,9 +15,9 @@ const change = (
 };
 
 export default (anime: Anime) => {
-  // 动画开始时间
+  // Animation start time
   const start = Date.now();
-  // 动画结束时间
+  // Animation end time
   const end = start + anime.duration;
 
   const targetList = !anime.targets
@@ -34,16 +34,16 @@ export default (anime: Anime) => {
     return cloneTarget;
   });
 
-  // 改变target所有的属性
+  // Change all properties of target
   const changeAll = (elapsed: number, current: number, final = false) => {
     targetList.forEach((target, index) => {
       Object.keys(anime.dest).forEach((key) => {
         const origin = parseFloat(cloneTargets[index][key] as string);
         let dest = anime.dest[key];
-        // 对象类型
+        // Object type
         if (typeof dest === "object") {
           if (!Array.isArray(dest)) {
-            // 支持nest模式 {value: 1, duration: 500, easing: 'linear'}
+            // Support nest mode {value: 1, duration: 500, easing: 'linear'}
             const { value, duration, easing = anime.easing } = dest;
             const elapsed = pennerFn[easing]()((current - start) / duration);
             if (current <= start + duration) {
@@ -53,7 +53,7 @@ export default (anime: Anime) => {
             }
           }
         } else {
-          // function模式
+          // Function mode
           if (typeof dest === "function") {
             dest = dest(target, index);
           }
@@ -65,11 +65,11 @@ export default (anime: Anime) => {
 
   let animationId: number | null = null;
 
-  // 控制动画rAF
+  // Control animation rAF
   const step = () => {
     const current = Date.now();
     if (current > end) {
-      // 数据回正
+      // Data correction
       changeAll(1, current, true);
       anime.isPlay = false;
       animationId = null;
