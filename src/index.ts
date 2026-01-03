@@ -17,9 +17,6 @@ const tap = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   ? "touchstart"
   : "click";
 
-let pointerX = 0;
-let pointerY = 0;
-
 const initCanvas = (): HTMLCanvasElement => {
   const canvasEl = document.createElement("canvas");
   canvasEl.style.cssText =
@@ -42,11 +39,12 @@ const setCanvasSize = (
   ctx.scale(2, 2);
 };
 
-const updateCoords = (e: MouseEvent | TouchEvent): void => {
+const updateCoords = (
+  e: MouseEvent | TouchEvent
+): { clientX: number; clientY: number } => {
   const { clientX, clientY } =
     (e as TouchEvent).touches?.[0] ?? (e as MouseEvent);
-  pointerX = clientX;
-  pointerY = clientY;
+  return { clientX, clientY };
 };
 
 const getAlphaAnim = (options: EmitOptions | DiffuseOptions) => {
@@ -125,8 +123,8 @@ const initFireworks = (options: FireworkOptions) => {
       return;
     }
     clearRenderer!.play();
-    updateCoords(e);
-    animateParticles(pointerX, pointerY, ctx, options);
+    const { clientX, clientY } = updateCoords(e);
+    animateParticles(clientX, clientY, ctx, options);
   };
   document.addEventListener(tap, currentCallback, false);
   setCanvasSize(canvasEl, ctx);
@@ -227,7 +225,7 @@ const firework = (options: FireworkOptions) => {
 
 firework.registerEntity = registerEntity;
 firework.BaseEntity = BaseEntity;
-export default firework;
 
+export default firework;
 export * from "./types";
 export * from "./anime/types";
