@@ -24,7 +24,7 @@ describe("engine", () => {
   });
 
   it("should start animation and update targets", () => {
-    const { stop } = engine(mockAnime as Anime);
+    const stop = engine(mockAnime as Anime);
 
     // Advance time to start
     vi.advanceTimersByTime(0);
@@ -49,7 +49,7 @@ describe("engine", () => {
   });
 
   it("should stop animation when stop is called", () => {
-    const { stop } = engine(mockAnime as Anime);
+    const stop = engine(mockAnime as Anime);
 
     // Advance time
     vi.advanceTimersByTime(100);

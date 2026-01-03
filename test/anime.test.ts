@@ -120,14 +120,6 @@ describe("Anime", () => {
       anime.play();
       expect(mockEngine).toHaveBeenCalledTimes(0);
     });
-
-    it("should store stop function", () => {
-      const mockStop = vi.fn();
-      mockEngine.mockReturnValue({ stop: mockStop });
-      const anime = new Anime();
-      anime.play();
-      expect((anime as any).stopFn).toBe(mockStop);
-    });
   });
 
   describe("stop", () => {
