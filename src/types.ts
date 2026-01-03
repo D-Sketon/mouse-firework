@@ -1,4 +1,4 @@
-import type { EasingTypes } from "theme-shokax-anime/dist/types";
+import type { EasingTypes } from "./anime/types";
 
 /**
  * Options for configuring a circle shape.

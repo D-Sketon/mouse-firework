@@ -3,6 +3,7 @@ import type { AnimeOptions } from "./types";
 
 export default class Timeline {
   queue: Anime[] = [];
+  complete?: () => void;
 
   add(options?: AnimeOptions) {
     this.queue.push(new Anime(options));
@@ -10,6 +11,25 @@ export default class Timeline {
   }
 
   play() {
+    let completedCount = 0;
+    const totalCount = this.queue.length;
+
+    if (totalCount === 0) {
+      this.complete?.();
+      return;
+    }
+
+    this.queue.forEach((anime) => {
+      const originalComplete = anime.complete;
+      anime.complete = () => {
+        originalComplete?.();
+        completedCount++;
+        if (completedCount === totalCount) {
+          this.complete?.();
+        }
+      };
+    });
+
     this.queue.forEach((instance) => instance.play());
   }
 }
