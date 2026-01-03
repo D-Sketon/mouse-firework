@@ -63,6 +63,8 @@ export default (anime: Anime) => {
     });
   };
 
+  let animationId: number | null = null;
+
   // 控制动画rAF
   const step = () => {
     const current = Date.now();
@@ -70,6 +72,7 @@ export default (anime: Anime) => {
       // 数据回正
       changeAll(1, current, true);
       anime.isPlay = false;
+      animationId = null;
     } else {
       if (current >= start) {
         changeAll(
@@ -78,9 +81,19 @@ export default (anime: Anime) => {
         );
         anime.update?.(targetList);
       }
-      requestAnimationFrame(step);
+      animationId = requestAnimationFrame(step);
+    }
+  };
+
+  const stop = () => {
+    if (animationId !== null) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+      anime.isPlay = false;
     }
   };
 
   step();
+
+  return { stop };
 };

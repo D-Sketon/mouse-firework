@@ -1,5 +1,4 @@
-import anime from "theme-shokax-anime";
-// import anime from "./anime";
+import anime from "./anime";
 import BaseEntity from "./entity/BaseEntity";
 
 import Circle from "./entity/Circle";

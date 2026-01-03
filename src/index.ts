@@ -1,5 +1,4 @@
-import anime from "theme-shokax-anime";
-// import anime from "./anime";
+import anime from "./anime";
 import type {
   DiffuseOptions,
   EmitOptions,
@@ -11,12 +10,9 @@ import type {
 import { formatAlpha, hasAncestor, sample } from "./utils";
 import BaseEntity from "./entity/BaseEntity";
 import { entityFactory, registerEntity } from "./factory";
+import type Anime from "./anime/Anime";
+import type Timeline from "./anime/Timeline";
 
-const canvasEl = document.createElement("canvas");
-canvasEl.style.cssText =
-  "position:fixed;top:0;left:0;pointer-events:none;z-index:9999999";
-document.body.appendChild(canvasEl);
-const ctx = canvasEl.getContext("2d");
 const tap = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   ? "touchstart"
   : "click";
@@ -24,7 +20,18 @@ const tap = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 let pointerX = 0;
 let pointerY = 0;
 
-const setCanvasSize = (): void => {
+const initCanvas = (): HTMLCanvasElement => {
+  const canvasEl = document.createElement("canvas");
+  canvasEl.style.cssText =
+    "position:fixed;top:0;left:0;pointer-events:none;z-index:9999999";
+  document.body.appendChild(canvasEl);
+  return canvasEl;
+};
+
+const setCanvasSize = (
+  canvasEl: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D | null
+): void => {
   if (!ctx) return;
   const { clientWidth: width, clientHeight: height } = document.documentElement;
   canvasEl.width = width * 2;
@@ -90,22 +97,30 @@ const renderParticle = (targets: BaseEntity[]): void => {
   }
 };
 
-const clearRenderer = anime({
-  duration: Infinity,
-  update() {
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-  },
-});
-
+let canvasEl: HTMLCanvasElement | null = null;
 let currentCallback: ((e: MouseEvent | TouchEvent) => void) | null = null;
-let globalOptions: FireworkOptions | null = null;
+let resizeObserver: ResizeObserver | null = null;
+let clearRenderer: Anime | null = null;
+let activeTimelines: Timeline[] = [];
+let domContentLoadedListener: (() => void) | null = null;
 
 const initFireworks = (options: FireworkOptions) => {
-  globalOptions = options;
+  if (!canvasEl) canvasEl = initCanvas();
+  const ctx = canvasEl.getContext("2d");
   if (currentCallback) {
     document.removeEventListener(tap, currentCallback, false);
   }
+  // 清理旧的clearRenderer
+  if (clearRenderer) {
+    clearRenderer.stop();
+  }
+  clearRenderer = anime({
+    duration: Infinity,
+    update() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvasEl!.width, canvasEl!.height);
+    },
+  });
   currentCallback = (e: MouseEvent | TouchEvent) => {
     if (
       options.excludeElements.some((excludeElement) =>
@@ -114,19 +129,51 @@ const initFireworks = (options: FireworkOptions) => {
     ) {
       return;
     }
-    clearRenderer.play();
+    clearRenderer!.play();
     updateCoords(e);
-    animateParticles(pointerX, pointerY);
+    animateParticles(pointerX, pointerY, ctx, options);
   };
   document.addEventListener(tap, currentCallback, false);
-  setCanvasSize();
-  window.removeEventListener("resize", setCanvasSize, false);
-  window.addEventListener("resize", setCanvasSize, false);
+  setCanvasSize(canvasEl, ctx);
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+  }
+  resizeObserver = new ResizeObserver(() => setCanvasSize(canvasEl!, ctx));
+  resizeObserver.observe(document.documentElement);
+
+  return () => {
+    if (currentCallback) {
+      document.removeEventListener(tap, currentCallback, false);
+      currentCallback = null;
+    }
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
+    }
+
+    activeTimelines.forEach((tl) => {
+      tl.queue.forEach((anime) => anime.stop());
+    });
+    activeTimelines = [];
+    if (clearRenderer) {
+      clearRenderer.stop();
+      clearRenderer = null;
+    }
+    if (canvasEl) {
+      document.body.removeChild(canvasEl);
+      canvasEl = null;
+    }
+  };
 };
 
-const animateParticles = (x: number, y: number): void => {
-  if (!globalOptions || !ctx) return;
-  const { particles } = globalOptions;
+const animateParticles = (
+  x: number,
+  y: number,
+  ctx: CanvasRenderingContext2D | null,
+  options: FireworkOptions
+): void => {
+  if (!options || !ctx) return;
+  const { particles } = options;
   const timeLine = anime().timeline();
   particles.forEach((particle) => {
     const { move, moveOptions } = particle;
@@ -144,19 +191,56 @@ const animateParticles = (x: number, y: number): void => {
       ...setParticleMovement(particle),
     });
   });
+
+  activeTimelines.push(timeLine);
   timeLine.play();
+
+  const maxDuration = Math.max(
+    ...particles.map((p) =>
+      Array.isArray(p.duration) ? p.duration[1] : p.duration
+    )
+  );
+  setTimeout(() => {
+    const index = activeTimelines.indexOf(timeLine);
+    if (index > -1) activeTimelines.splice(index, 1);
+  }, maxDuration + 100);
 };
 
 const firework = (options: FireworkOptions) => {
   if (document.readyState === "loading") {
-    window.addEventListener("DOMContentLoaded", () => initFireworks(options), {
+    let cleanup: (() => void) | null = null;
+
+    if (domContentLoadedListener) {
+      window.removeEventListener("DOMContentLoaded", domContentLoadedListener);
+    }
+
+    domContentLoadedListener = () => {
+      cleanup = initFireworks(options);
+      domContentLoadedListener = null;
+    };
+
+    window.addEventListener("DOMContentLoaded", domContentLoadedListener, {
       passive: true,
     });
+
+    return () => {
+      if (domContentLoadedListener) {
+        window.removeEventListener(
+          "DOMContentLoaded",
+          domContentLoadedListener
+        );
+        domContentLoadedListener = null;
+      }
+      cleanup?.();
+    };
   } else {
-    initFireworks(options);
+    return initFireworks(options);
   }
 };
 
 firework.registerEntity = registerEntity;
 firework.BaseEntity = BaseEntity;
 export default firework;
+
+export * from "./types";
+export * from "./anime/types";

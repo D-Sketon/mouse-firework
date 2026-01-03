@@ -20,6 +20,8 @@ export default class Anime {
   >;
   tl: Timeline | null;
   isPlay: boolean;
+  private stopFn?: () => void;
+
   constructor(options: Partial<AnimeOptions> = defaultOptions) {
     options = { ...defaultOptions, ...options };
     const { targets, duration, easing, update, ...dest } =
@@ -43,7 +45,16 @@ export default class Anime {
   play() {
     if (!this.isPlay) {
       this.isPlay = true;
-      engine(this);
+      const { stop } = engine(this);
+      this.stopFn = stop;
+    }
+  }
+
+  stop() {
+    if (this.stopFn) {
+      this.stopFn();
+      this.stopFn = undefined;
+      this.isPlay = false;
     }
   }
 }
