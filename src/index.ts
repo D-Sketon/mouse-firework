@@ -1,5 +1,4 @@
-import anime from "theme-shokax-anime";
-// import anime from "./anime";
+import anime from "./anime";
 import type {
   DiffuseOptions,
   EmitOptions,
@@ -11,20 +10,25 @@ import type {
 import { formatAlpha, hasAncestor, sample } from "./utils";
 import BaseEntity from "./entity/BaseEntity";
 import { entityFactory, registerEntity } from "./factory";
+import type Anime from "./anime/Anime";
+import type Timeline from "./anime/Timeline";
 
-const canvasEl = document.createElement("canvas");
-canvasEl.style.cssText =
-  "position:fixed;top:0;left:0;pointer-events:none;z-index:9999999";
-document.body.appendChild(canvasEl);
-const ctx = canvasEl.getContext("2d");
 const tap = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   ? "touchstart"
   : "click";
 
-let pointerX = 0;
-let pointerY = 0;
+const initCanvas = (): HTMLCanvasElement => {
+  const canvasEl = document.createElement("canvas");
+  canvasEl.style.cssText =
+    "position:fixed;top:0;left:0;pointer-events:none;z-index:9999999";
+  document.body.appendChild(canvasEl);
+  return canvasEl;
+};
 
-const setCanvasSize = (): void => {
+const setCanvasSize = (
+  canvasEl: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D | null
+): void => {
   if (!ctx) return;
   const { clientWidth: width, clientHeight: height } = document.documentElement;
   canvasEl.width = width * 2;
@@ -35,11 +39,12 @@ const setCanvasSize = (): void => {
   ctx.scale(2, 2);
 };
 
-const updateCoords = (e: MouseEvent | TouchEvent): void => {
+const updateCoords = (
+  e: MouseEvent | TouchEvent
+): { clientX: number; clientY: number } => {
   const { clientX, clientY } =
     (e as TouchEvent).touches?.[0] ?? (e as MouseEvent);
-  pointerX = clientX;
-  pointerY = clientY;
+  return { clientX, clientY };
 };
 
 const getAlphaAnim = (options: EmitOptions | DiffuseOptions) => {
@@ -90,22 +95,25 @@ const renderParticle = (targets: BaseEntity[]): void => {
   }
 };
 
-const clearRenderer = anime({
-  duration: Infinity,
-  update() {
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-  },
-});
-
+let canvasEl: HTMLCanvasElement | null = null;
 let currentCallback: ((e: MouseEvent | TouchEvent) => void) | null = null;
-let globalOptions: FireworkOptions | null = null;
+let resizeObserver: ResizeObserver | null = null;
+let clearRenderer: Anime | null = null;
+let activeTimelines: (Timeline | null)[] = [];
+let domContentLoadedListener: (() => void) | null = null;
+let cleanUp: (() => void) | null = null;
 
 const initFireworks = (options: FireworkOptions) => {
-  globalOptions = options;
-  if (currentCallback) {
-    document.removeEventListener(tap, currentCallback, false);
-  }
+  cleanUp?.();
+  canvasEl = initCanvas();
+  const ctx = canvasEl.getContext("2d");
+  clearRenderer = anime({
+    duration: Infinity,
+    update() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvasEl!.width, canvasEl!.height);
+    },
+  });
   currentCallback = (e: MouseEvent | TouchEvent) => {
     if (
       options.excludeElements.some((excludeElement) =>
@@ -114,21 +122,42 @@ const initFireworks = (options: FireworkOptions) => {
     ) {
       return;
     }
-    clearRenderer.play();
-    updateCoords(e);
-    animateParticles(pointerX, pointerY);
+    clearRenderer!.play();
+    const { clientX, clientY } = updateCoords(e);
+    animateParticles(clientX, clientY, ctx, options);
   };
   document.addEventListener(tap, currentCallback, false);
-  setCanvasSize();
-  window.removeEventListener("resize", setCanvasSize, false);
-  window.addEventListener("resize", setCanvasSize, false);
+  setCanvasSize(canvasEl, ctx);
+  resizeObserver = new ResizeObserver(() => setCanvasSize(canvasEl!, ctx));
+  resizeObserver.observe(document.documentElement);
+
+  cleanUp = () => {
+    currentCallback &&
+      document.removeEventListener(tap, currentCallback, false);
+    resizeObserver?.disconnect();
+    activeTimelines.forEach((tl) => tl?.queue.forEach((anime) => anime.stop()));
+    clearRenderer?.stop();
+    canvasEl?.remove();
+
+    currentCallback = resizeObserver = clearRenderer = canvasEl = null;
+    activeTimelines = [];
+  };
+  return cleanUp;
 };
 
-const animateParticles = (x: number, y: number): void => {
-  if (!globalOptions || !ctx) return;
-  const { particles } = globalOptions;
+const animateParticles = (
+  x: number,
+  y: number,
+  ctx: CanvasRenderingContext2D | null,
+  options: FireworkOptions
+): void => {
+  if (!options || !ctx) return;
   const timeLine = anime().timeline();
-  particles.forEach((particle) => {
+  timeLine.complete = () => {
+    const index = activeTimelines.indexOf(timeLine);
+    if (index > -1) activeTimelines[index] = null;
+  };
+  options.particles.forEach((particle) => {
     const { move, moveOptions } = particle;
     particle.move = Array.isArray(move) ? move : [move];
     particle.moveOptions = moveOptions
@@ -144,19 +173,46 @@ const animateParticles = (x: number, y: number): void => {
       ...setParticleMovement(particle),
     });
   });
+
+  activeTimelines.push(timeLine);
   timeLine.play();
 };
 
 const firework = (options: FireworkOptions) => {
   if (document.readyState === "loading") {
-    window.addEventListener("DOMContentLoaded", () => initFireworks(options), {
+    let cleanup: (() => void) | null = null;
+
+    if (domContentLoadedListener) {
+      window.removeEventListener("DOMContentLoaded", domContentLoadedListener);
+    }
+
+    domContentLoadedListener = () => {
+      cleanup = initFireworks(options);
+      domContentLoadedListener = null;
+    };
+
+    window.addEventListener("DOMContentLoaded", domContentLoadedListener, {
       passive: true,
     });
+
+    return () => {
+      if (domContentLoadedListener) {
+        window.removeEventListener(
+          "DOMContentLoaded",
+          domContentLoadedListener
+        );
+        domContentLoadedListener = null;
+      }
+      cleanup?.();
+    };
   } else {
-    initFireworks(options);
+    return initFireworks(options);
   }
 };
 
 firework.registerEntity = registerEntity;
 firework.BaseEntity = BaseEntity;
+
 export default firework;
+export * from "./types";
+export * from "./anime/types";

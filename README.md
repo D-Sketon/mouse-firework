@@ -67,6 +67,35 @@ e.g.
 </script>
 ```
 
+## Cleanup
+
+The `firework` function returns a cleanup function that can be used to remove all event listeners, stop animations, and clean up resources.
+
+```js
+const cleanup = firework({
+  excludeElements: ["a"],
+  particles: [
+    {
+      shape: "circle",
+      move: "emit",
+      colors: ["#ff0000", "#00ff00", "#0000ff"],
+      number: 20,
+      duration: 1000,
+      shapeOptions: {
+        radius: 10,
+      },
+    },
+  ],
+});
+
+// To stop the fireworks and clean up resources
+cleanup();
+```
+
+**Note:** You don't need to explicitly call the cleanup function in most cases, as calling `firework()` again will automatically clean up the previous instance before initializing the new one. The cleanup function is mainly useful when you want to completely disable the fireworks effect or when cleaning up in a component lifecycle.
+
+This is particularly useful when you want to dynamically enable/disable the fireworks effect or when cleaning up in a component lifecycle.
+
 ## Options
 
 ```ts

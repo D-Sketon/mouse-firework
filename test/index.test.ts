@@ -10,19 +10,6 @@ const wait = async (time = 0): Promise<void> => {
 };
 
 describe("firework", () => {
-  const dom = new JSDOM(
-    `<!DOCTYPE html><button id="test">Hello world</button>`
-  );
-  global.document = dom.window.document;
-  Object.defineProperty(global, "navigator", {
-    value: dom.window.navigator,
-    writable: true,
-  });
-  // @ts-expect-error
-  global.window = dom.window;
-  global.HTMLElement = dom.window.HTMLElement;
-  global.getComputedStyle = dom.window.getComputedStyle;
-
   const mockCanvas = {
     fillRect: () => {},
     clearRect: () => {},
@@ -55,7 +42,6 @@ describe("firework", () => {
     strokeStyle: "",
     globalAlpha: 1,
   };
-
   // @ts-expect-error
   window.HTMLCanvasElement.prototype.getContext = () => mockCanvas;
 

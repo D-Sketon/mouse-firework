@@ -3,6 +3,7 @@ export interface AnimeOptions {
   duration: number;
   easing: EasingTypes;
   update?: (targets: Record<string, any>[]) => void;
+  complete?: () => void;
   [index: string]:
     | ((...args: any[]) => string | number)
     | BasicProp
