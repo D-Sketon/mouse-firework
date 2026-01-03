@@ -47,8 +47,7 @@ export default class Anime {
   play() {
     if (!this.isPlay) {
       this.isPlay = true;
-      const { stop } = engine(this);
-      this.stopFn = stop;
+      this.stopFn = engine(this);
     }
   }
 

@@ -132,27 +132,15 @@ const initFireworks = (options: FireworkOptions) => {
   resizeObserver.observe(document.documentElement);
 
   cleanUp = () => {
-    if (currentCallback) {
+    currentCallback &&
       document.removeEventListener(tap, currentCallback, false);
-      currentCallback = null;
-    }
-    if (resizeObserver) {
-      resizeObserver.disconnect();
-      resizeObserver = null;
-    }
+    resizeObserver?.disconnect();
+    activeTimelines.forEach((tl) => tl?.queue.forEach((anime) => anime.stop()));
+    clearRenderer?.stop();
+    canvasEl?.parentNode && document.body.removeChild(canvasEl);
 
-    activeTimelines.forEach((tl) => {
-      tl?.queue.forEach((anime) => anime.stop());
-    });
+    currentCallback = resizeObserver = clearRenderer = canvasEl = null;
     activeTimelines = [];
-    if (clearRenderer) {
-      clearRenderer.stop();
-      clearRenderer = null;
-    }
-    if (canvasEl?.parentNode) {
-      document.body.removeChild(canvasEl);
-      canvasEl = null;
-    }
   };
   return cleanUp;
 };
@@ -164,13 +152,12 @@ const animateParticles = (
   options: FireworkOptions
 ): void => {
   if (!options || !ctx) return;
-  const { particles } = options;
   const timeLine = anime().timeline();
   timeLine.complete = () => {
     const index = activeTimelines.indexOf(timeLine);
     if (index > -1) activeTimelines[index] = null;
   };
-  particles.forEach((particle) => {
+  options.particles.forEach((particle) => {
     const { move, moveOptions } = particle;
     particle.move = Array.isArray(move) ? move : [move];
     particle.moveOptions = moveOptions

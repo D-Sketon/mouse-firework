@@ -96,5 +96,5 @@ export default (anime: Anime) => {
 
   step();
 
-  return { stop };
+  return stop;
 };

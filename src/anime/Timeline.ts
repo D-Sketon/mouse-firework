@@ -24,8 +24,8 @@ export default class Timeline {
       anime.complete = () => {
         originalComplete?.();
         completedCount++;
-        if (completedCount === totalCount && this.complete) {
-          this.complete();
+        if (completedCount === totalCount) {
+          this.complete?.();
         }
       };
     });
