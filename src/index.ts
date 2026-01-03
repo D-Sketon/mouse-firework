@@ -103,15 +103,12 @@ let resizeObserver: ResizeObserver | null = null;
 let clearRenderer: Anime | null = null;
 let activeTimelines: Timeline[] = [];
 let domContentLoadedListener: (() => void) | null = null;
+let cleanUp: (() => void) | null = null;
 
 const initFireworks = (options: FireworkOptions) => {
-  if (!canvasEl) canvasEl = initCanvas();
+  cleanUp?.();
+  canvasEl = initCanvas();
   const ctx = canvasEl.getContext("2d");
-  if (currentCallback) {
-    document.removeEventListener(tap, currentCallback, false);
-  }
-  // Clean up the old clearRenderer
-  clearRenderer?.stop();
   clearRenderer = anime({
     duration: Infinity,
     update() {
@@ -133,11 +130,10 @@ const initFireworks = (options: FireworkOptions) => {
   };
   document.addEventListener(tap, currentCallback, false);
   setCanvasSize(canvasEl, ctx);
-  resizeObserver?.disconnect();
   resizeObserver = new ResizeObserver(() => setCanvasSize(canvasEl!, ctx));
   resizeObserver.observe(document.documentElement);
 
-  return () => {
+  cleanUp = () => {
     if (currentCallback) {
       document.removeEventListener(tap, currentCallback, false);
       currentCallback = null;
@@ -160,6 +156,7 @@ const initFireworks = (options: FireworkOptions) => {
       canvasEl = null;
     }
   };
+  return cleanUp;
 };
 
 const animateParticles = (
@@ -171,6 +168,10 @@ const animateParticles = (
   if (!options || !ctx) return;
   const { particles } = options;
   const timeLine = anime().timeline();
+  timeLine.complete = () => {
+    const index = activeTimelines.indexOf(timeLine);
+    if (index > -1) activeTimelines.splice(index, 1);
+  };
   particles.forEach((particle) => {
     const { move, moveOptions } = particle;
     particle.move = Array.isArray(move) ? move : [move];
@@ -190,16 +191,6 @@ const animateParticles = (
 
   activeTimelines.push(timeLine);
   timeLine.play();
-
-  const maxDuration = Math.max(
-    ...particles.map((p) =>
-      Array.isArray(p.duration) ? p.duration[1] : p.duration
-    )
-  );
-  setTimeout(() => {
-    const index = activeTimelines.indexOf(timeLine);
-    if (index > -1) activeTimelines.splice(index, 1);
-  }, maxDuration + 100);
 };
 
 const firework = (options: FireworkOptions) => {
