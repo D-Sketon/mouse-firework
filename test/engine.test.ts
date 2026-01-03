@@ -80,6 +80,7 @@ describe("engine", () => {
     expect(() => {
       engine(mockAnime as Anime);
       vi.advanceTimersByTime(1000);
+      vi.runOnlyPendingTimers();
     }).not.toThrow();
   });
 });
