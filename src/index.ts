@@ -101,7 +101,7 @@ let canvasEl: HTMLCanvasElement | null = null;
 let currentCallback: ((e: MouseEvent | TouchEvent) => void) | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let clearRenderer: Anime | null = null;
-let activeTimelines: Timeline[] = [];
+let activeTimelines: (Timeline | null)[] = [];
 let domContentLoadedListener: (() => void) | null = null;
 let cleanUp: (() => void) | null = null;
 
@@ -144,7 +144,7 @@ const initFireworks = (options: FireworkOptions) => {
     }
 
     activeTimelines.forEach((tl) => {
-      tl.queue.forEach((anime) => anime.stop());
+      tl?.queue.forEach((anime) => anime.stop());
     });
     activeTimelines = [];
     if (clearRenderer) {
@@ -170,7 +170,7 @@ const animateParticles = (
   const timeLine = anime().timeline();
   timeLine.complete = () => {
     const index = activeTimelines.indexOf(timeLine);
-    if (index > -1) activeTimelines.splice(index, 1);
+    if (index > -1) activeTimelines[index] = null;
   };
   particles.forEach((particle) => {
     const { move, moveOptions } = particle;

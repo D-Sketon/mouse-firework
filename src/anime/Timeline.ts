@@ -14,6 +14,11 @@ export default class Timeline {
     let completedCount = 0;
     const totalCount = this.queue.length;
 
+    if (totalCount === 0) {
+      this.complete?.();
+      return;
+    }
+
     this.queue.forEach((anime) => {
       const originalComplete = anime.complete;
       anime.complete = () => {
