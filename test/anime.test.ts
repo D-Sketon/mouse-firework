@@ -70,6 +70,21 @@ describe("Anime", () => {
       const anime = new Anime({ targets: {}, duration: 500, dest: undefined });
       expect(anime.dest).toEqual({});
     });
+
+    it("should initialize with complete callback", () => {
+      const completeCallback = () => {};
+      const anime = new Anime({
+        targets: { x: 0 },
+        duration: 1000,
+        complete: completeCallback
+      });
+      expect(anime.complete).toBe(completeCallback);
+    });
+
+    it("should handle undefined complete callback", () => {
+      const anime = new Anime({ targets: {}, duration: 500 });
+      expect(anime.complete).toBeUndefined();
+    });
   });
 
   describe("timeline", () => {

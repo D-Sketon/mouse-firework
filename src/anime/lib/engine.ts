@@ -73,6 +73,7 @@ export default (anime: Anime) => {
       changeAll(1, current, true);
       anime.isPlay = false;
       animationId = null;
+      anime.complete?.();
     } else {
       if (current >= start) {
         changeAll(

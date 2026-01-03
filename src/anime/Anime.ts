@@ -14,6 +14,7 @@ export default class Anime {
   duration: number;
   easing: EasingTypes;
   update?: (targets: Record<string, any>[]) => void;
+  complete?: () => void;
   dest: Record<
     string,
     ((...args: any[]) => string | number) | BasicProp | FromToProp | NestProp
@@ -24,12 +25,13 @@ export default class Anime {
 
   constructor(options: Partial<AnimeOptions> = defaultOptions) {
     options = { ...defaultOptions, ...options };
-    const { targets, duration, easing, update, ...dest } =
+    const { targets, duration, easing, update, complete, ...dest } =
       options as AnimeOptions;
     this.targets = targets;
     this.duration = duration;
     this.easing = easing;
     this.update = update;
+    this.complete = complete;
     this.dest = dest ? dest : {};
     this.tl = null;
     this.isPlay = false;

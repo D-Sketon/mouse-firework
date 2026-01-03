@@ -13,6 +13,7 @@ describe("engine", () => {
       targets: [{ x: 0 }],
       dest: { x: 100 },
       update: vi.fn(),
+      complete: vi.fn(),
       isPlay: false,
     };
   });
@@ -32,13 +33,16 @@ describe("engine", () => {
 
     // Advance to middle
     vi.advanceTimersByTime(500);
+    vi.runOnlyPendingTimers();
 
     expect(mockAnime.update).toHaveBeenCalled();
 
     // Advance to end
     vi.advanceTimersByTime(500);
+    vi.runOnlyPendingTimers();
 
     expect(mockAnime.isPlay).toBe(false);
+    expect(mockAnime.complete).toHaveBeenCalledTimes(1);
 
     // Call stop after end, should do nothing
     stop();
@@ -49,9 +53,33 @@ describe("engine", () => {
 
     // Advance time
     vi.advanceTimersByTime(100);
+    vi.runOnlyPendingTimers();
 
     stop();
 
     expect(mockAnime.isPlay).toBe(false);
+    expect(mockAnime.complete).not.toHaveBeenCalled();
+  });
+
+  it("should call complete callback when animation finishes", () => {
+    const completeCallback = vi.fn();
+    mockAnime.complete = completeCallback;
+
+    engine(mockAnime as Anime);
+
+    // Advance time to end
+    vi.advanceTimersByTime(1000);
+    vi.runOnlyPendingTimers();
+
+    expect(completeCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("should not call complete callback if not provided", () => {
+    mockAnime.complete = undefined;
+
+    expect(() => {
+      engine(mockAnime as Anime);
+      vi.advanceTimersByTime(1000);
+    }).not.toThrow();
   });
 });

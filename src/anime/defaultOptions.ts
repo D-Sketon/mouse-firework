@@ -5,4 +5,5 @@ export const defaultOptions: AnimeOptions = {
   duration: Infinity,
   easing: "linear",
   update: undefined, // Update callback
+  complete: undefined, // Complete callback
 };
