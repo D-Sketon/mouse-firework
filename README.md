@@ -13,7 +13,7 @@
 
 ---
 
-Fireworks effects appear when you click the mouse. Ideal for insertion in blogs and other such sites
+Beautiful fireworks burst with every click. Perfect for blogs and personal sites.
 
 ## Usage
 
